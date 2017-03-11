@@ -1,0 +1,131 @@
+<script>
+  (function () {
+    const STORE_VERSION = 1; // Integer value
+    const REHYDRATE = 'persist/REHYDRATE'; // NOTE: Pulled from redux-persist, could change in future.
+    const RESET = 'main/RESET';
+    const GET_LOCATION = 'ui/GET_LOCATION';
+    const RESPONSE_LOCATION = 'ui/RESPONSE_LOCATION';
+    const ERROR_LOCATION = 'ui/ERROR_LOCATION';
+
+      /*
+       Action Creator functions
+       */
+    function updateUserLocation() {
+      return {
+        type: GET_LOCATION
+      }
+    }
+
+      /*
+       Rx Observables for Async-Tasks  (redux-observable)
+       */
+    const locationEpic = (action$, state) => action$.ofType(GET_LOCATION)
+      .mergeMap(action => {
+        if (false && !navigator && !navigator.geolocation) {
+          return Rx.Observable.of({
+            type: ERROR_LOCATION,
+            error: true,
+            payload: 'Navigator is not available'
+          })
+        }
+
+        return Rx.Observable.create(o => {
+          function success(position) {
+            o.next({
+              type: RESPONSE_LOCATION,
+              error: true,
+              userLocation: {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+              }
+            });
+            o.complete();
+          }
+
+          function error(error) {
+            o.error({
+              type: ERROR_LOCATION,
+              error: true,
+              payload: error
+            });
+          }
+
+          navigator.geolocation.getCurrentPosition(success.bind(this), error.bind(this));
+
+        });
+      });
+
+      /*
+       Standard Redux Reducer
+       */
+    const reducer = (state, action) => {
+      if (!state) return generateInitialState();
+      switch (action.type) {
+        case REHYDRATE:
+          console.log('UI REHYDRATE', state);
+          if (!state.STORE_VERSION || state.STORE_VERSION < STORE_VERSION) return generateInitialState();
+          // RESTORE TEMP VALUES TO WHAT THEY SHOULD BE!
+          action.payload = action.payload || {};
+          action.payload.main = action.payload.main || {};
+          action.payload.main.locationStatus = null;
+          action.payload.main.locationError = null;
+          action.payload.main.route = state.route;
+          return Object.assign({}, state, action.payload.main);
+          return Object.assign({}, state, {
+            locationStatus: null,
+            locationError: null
+          });
+        case RESET:
+          return generateInitialState();
+
+        case CHANGE_ROUTE:
+          return Object.assign({}, state, {route: action.route});
+
+        // Location
+        case GET_LOCATION:
+          console.log('GET_LOCATION reducing');
+          return Object.assign({}, state, {locationStatus: 'getting'});
+        case RESPONSE_LOCATION:
+          console.log('RESPONSE_LOCATION reducing: ', action.userLocation);
+          return Object.assign({}, state, {
+            locationStatus: 'found',
+            userLocation: action.userLocation,
+            locationError: null
+          });
+        case ERROR_LOCATION:
+          console.log('ERROR_LOCATION reducing: ', action.payload);
+          return Object.assign({}, state, {locationStatus: 'error', userLocation: null, locationError: action.payload});
+
+        default:
+          return state;
+      }
+    };
+
+    function generateInitialState() {
+      return {
+        STORE_VERSION: STORE_VERSION,
+        route: '/',
+        locationStatus: null,
+        userLocation: null,
+        locationError: null
+      }
+    }
+
+      /*
+       Without exports (no webpack, I need to carefully leverage global state
+       */
+    window.atlasLabs = window.atlasLabs || {};
+    window.atlasLabs.stores = window.atlasLabs.stores || {};
+
+    window.atlasLabs.stores.main = {
+      actions: {
+        updateUserLocation
+      },
+      epics: [
+        locationEpic
+      ],
+      reducer: reducer
+    }
+
+  })();
+</script>

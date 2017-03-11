@@ -47,6 +47,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="msapplication-TileColor" content="#3f51b5">
     <meta name="msapplication-tap-highlight" content="no">
 
+    <!-- Setting up global Firebase Configuration for the app here. -->
+    <script>
+      window.FIREBASE_CONFIG = {
+        apiKey: "AIzaSyBUITospfcNGyFaor7qSruDskYOQJfWBy0",
+        authDomain: "atlas-labs.firebaseapp.com",
+        databaseURL: "https://atlas-labs.firebaseio.com",
+        storageBucket: "atlas-labs.appspot.com",
+        messagingSenderId: "553079441788"
+      };
+    </script>
+
     <!-- Load and register pre-caching Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {
