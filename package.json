@@ -9,7 +9,7 @@
     "lint": "eslint . --ext js,html --ignore-path .gitignore",
     "test": "npm run lint && polymer test"
   },
-  "description": "[![Build Status](https://travis-ci.org/PolymerElements/polymer-starter-kit.svg?branch=master)](https://travis-ci.org/PolymerElements/polymer-starter-kit)",
+  "description": "Experimenting with Firebase and other technologies.",
   "version": "1.0.0",
   "main": "service-worker.js",
   "directories": {
@@ -29,5 +29,11 @@
   "bugs": {
     "url": "https://github.com/ZepAviator/atlas-labs/issues"
   },
-  "homepage": "https://github.com/ZepAviator/atlas-labs#readme"
+  "homepage": "https://github.com/ZepAviator/atlas-labs#readme",
+  "dependencies": {
+    "localforage": "^1.5.0",
+    "redux": "^3.6.0",
+    "redux-persist": "^4.4.2",
+    "rxjs": "^5.2.0"
+  }
 }
