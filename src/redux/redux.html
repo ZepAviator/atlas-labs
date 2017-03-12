@@ -52,5 +52,8 @@
     // And, let's get all this persisting to the indexDb via localForage
     persistStore(store, {storage: localForage});
 
+    // Expose the mixin for Polymer classes
+    window.ReduxMixin = PolymerRedux(store);
+
   })();
 </script>

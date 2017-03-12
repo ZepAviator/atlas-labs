@@ -1,0 +1,94 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../components/iron-swipeable-pages.html">
+<link rel="import" href="../components/paper-pager.html">
+<!-- Redux -->
+<link rel="import" href="../redux/redux.html">
+<!-- App Components -->
+
+<dom-module id="compass-fire-home">
+    <template>
+        <style include="iron-flex iron-flex-alignment">
+            :host {
+                display: block;
+                /*height: calc(100vh - 56px);*/
+                background-color: greenyellow;
+            }
+
+            iron-swipeable-pages {
+                @apply(--layout-flex);
+                height: calc(100vh - 56px - 36px);
+                background-color: greenyellow;
+            }
+
+            /*iron-swipeable-pages > * {*/
+                /*-webkit-user-select: none;  !* Chrome all / Safari all *!*/
+                /*-moz-user-select: none;     !* Firefox all *!*/
+                /*-ms-user-select: none;      !* IE 10+ *!*/
+                /*user-select: none;          !* Likely future *!*/
+                /*cursor: default;*/
+            /*}*/
+
+            .page {
+                height: 100%;
+            }
+
+            div {
+                color: white;
+                @apply(--layout-horizontal);
+                @apply(--layout-center-center);
+                @apply(--paper-font-display4);
+            }
+            div:nth-child(1) {
+                background: var(--paper-red-500);
+            }
+            div:nth-child(2) {
+                background: var(--paper-blue-500);
+            }
+            div:nth-child(3) {
+                background: var(--paper-orange-500);
+            }
+            div:nth-child(4) {
+                background: var(--paper-green-500);
+            }
+            div:nth-child(5) {
+                background: var(--paper-purple-500);
+            }
+
+            paper-pager {
+                min-height: 36px;
+            }
+        </style>
+
+        <iron-swipeable-pages selected="{{selectedPage}}" threshold="0.2" no-cycle>
+            <div class="page">Page 1</div>
+            <div class="page">Page 2</div>
+            <div class="page">Page 3</div>
+            <div class="page">Page 4</div>
+            <div class="page">Page 5</div>
+        </iron-swipeable-pages>
+
+        <div>
+            <paper-pager items-count="5" selected="{{selectedPage}}"></paper-pager>
+        </div>
+    </template>
+
+    <script>
+      class CompassFireHome extends Polymer.mixinBehaviors(
+        [Polymer.IronResizableBehavior], Polymer.Element) {
+        static get is() { return 'compass-fire-home'; }
+
+        static get properties() {
+          return {
+            selectedPage: {
+              type: Number,
+              value: 0
+            }
+          }
+        }
+      }
+
+      window.customElements.define(CompassFireHome.is, CompassFireHome);
+    </script>
+</dom-module>

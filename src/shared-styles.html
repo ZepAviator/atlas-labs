@@ -13,7 +13,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!-- shared styles for all views -->
 <dom-module id="shared-styles">
   <template>
-    <style>
+    <style is="custom-style" >
+      :host > * {
+        font-family: 'Roboto', 'Noto', sans-serif;
+
+        --dark-primary-color:       #388E3C;
+        --default-primary-color:    #4CAF50;
+        --light-primary-color:      #C8E6C9;
+        --text-primary-color:       #FFFFFF;
+        --accent-color:             #FFC107;
+        --primary-background-color: #fff;
+        --primary-text-color:       #212121;
+        --secondary-text-color:     #757575;
+        --disabled-text-color:      #BDBDBD;
+        --divider-color:            #BDBDBD;
+
+        --primary-color:            var(--default-primary-color);
+        --app-primary-color:        var(--default-primary-color);
+        --app-secondary-color:      var(--accent-color);
+
+        /* Components */
+        /*paper-card {*/
+        /*--paper-card-background-color: var()*/
+        /*}*/
+
+        /* paper-drawer-panel */
+        --drawer-menu-color:           #ffffff;
+        --drawer-border-color:         1px solid #ccc;
+        --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+
+        /* paper-menu */
+        --paper-menu-background-color: #fff;
+        --menu-link-color:             #111111;
+
+        /* paper-input */
+        --paper-input-container-color:       rgba(255, 255, 255, 0.64);
+        --paper-input-container-focus-color: rgba(255, 255, 255, 1);
+        --paper-input-container-input-color: #fff;
+      }
+
       .card {
         margin: 24px;
         padding: 16px;

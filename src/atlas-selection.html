@@ -1,0 +1,35 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="shared-styles.html">
+<!-- Redux -->
+<link rel="import" href="redux/redux.html">
+
+<dom-module id="atlas-selection">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+
+    <div class="layout horizontal wrap">
+      <div class="card">
+        <div class="circle">1</div>
+        <h1>Atlas Selection</h1>
+        <p>This will soon be a selectoin to choose between sample projects.</p>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    class AtlasSelection extends ReduxMixin(Polymer.mixinBehaviors(
+      [Polymer.IronResizableBehavior],
+      Polymer.Element)) {
+      static get is() { return 'atlas-selection'; }
+    }
+
+    window.customElements.define(AtlasSelection.is, AtlasSelection);
+  </script>
+</dom-module>

@@ -1,0 +1,131 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="atlas-icons.html">
+<!-- Redux -->
+<link rel="import" href="redux/redux.html">
+
+<dom-module id="atlas-app">
+    <template>
+        <style include="shared-styles">
+            :host {
+                /*--app-primary-color: #4285f4;*/
+                /*--app-secondary-color: black;*/
+                display: block;
+            }
+
+            iron-pages {
+                height: 100vh;
+                min-height: 100vh;
+            }
+        </style>
+
+        <app-location route="{{route}}"></app-location>
+        <app-route
+                route="{{route}}"
+                pattern="/:page"
+                data="{{routeData}}"
+                tail="{{subroute}}"></app-route>
+
+        <!-- Main content -->
+        <iron-pages
+                selected="[[page]]"
+                attr-for-selected="name"
+                fallback-selection="view404"
+                role="main">
+            <atlas-selection name="selection"></atlas-selection>
+            <compass-fire-app name="compass-fire"></compass-fire-app>
+            <atlas-view404 name="view404"></atlas-view404>
+        </iron-pages>
+
+    </template>
+
+    <script>
+      class AtlasApp extends ReduxMixin(Polymer.mixinBehaviors(
+        [Polymer.IronResizableBehavior],
+        Polymer.Element)) {
+
+        static get is() {
+          return 'atlas-app';
+        }
+
+        static get actions() {
+          return Object.assign({},
+            window.atlasLabs.stores.main.actions
+          );
+        }
+
+        static get properties() {
+          return {
+            page: {
+              type: String,
+              reflectToAttribute: true,
+              observer: '_pageChanged',
+            },
+            storeVersion: {
+              type: Number,
+              statePath: 'main.STORE_VERSION',
+              observer: '_storeVersionUpdate'
+            }
+          };
+        }
+
+        static get observers() {
+          return [
+            '_routePageChanged(routeData.page)',
+          ];
+        }
+
+        ready() {
+          super.ready();
+        }
+
+        connectedCallback() {
+          super.connectedCallback();
+          this.dispatch('updateUserLocation');
+        }
+
+        _storeVersionUpdate(version) {
+          console.log('Main Store Version: ', version);
+        }
+
+        _routePageChanged(page) {
+          // Ignore page if it is not defined
+          if (page === undefined) {
+            return;
+          }
+
+          // Fallback to default view if no page is set.
+          this.page = page || 'compass-fire';  // 'selection' is the main app root.
+        }
+
+        _pageChanged(page) {
+          // Load page import on demand. Show 404 page if fails
+          let resolvedPageUrl = this.resolveUrl('atlas-' + page + '.html');
+          let pageLower = page.toLowerCase();
+          switch (pageLower) {
+            case "compass-fire":
+              resolvedPageUrl = this.resolveUrl('compass-fire/compass-fire-app.html');
+              break;
+          }
+
+          Polymer.importHref(
+            resolvedPageUrl,
+            null,
+            this._showPage404.bind(this),
+            true);
+        }
+
+        _showPage404() {
+          this.page = 'view404';
+        }
+      }
+
+      window.customElements.define(AtlasApp.is, AtlasApp);
+    </script>
+</dom-module>

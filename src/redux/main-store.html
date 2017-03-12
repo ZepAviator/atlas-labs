@@ -3,9 +3,10 @@
     const STORE_VERSION = 1; // Integer value
     const REHYDRATE = 'persist/REHYDRATE'; // NOTE: Pulled from redux-persist, could change in future.
     const RESET = 'main/RESET';
-    const GET_LOCATION = 'ui/GET_LOCATION';
-    const RESPONSE_LOCATION = 'ui/RESPONSE_LOCATION';
-    const ERROR_LOCATION = 'ui/ERROR_LOCATION';
+    const GET_LOCATION = 'main/GET_LOCATION';
+    const RESPONSE_LOCATION = 'main/RESPONSE_LOCATION';
+    const ERROR_LOCATION = 'main/ERROR_LOCATION';
+    const CHANGE_ROUTE = 'main/CHANGE_ROUTE';
 
       /*
        Action Creator functions
@@ -62,7 +63,6 @@
       if (!state) return generateInitialState();
       switch (action.type) {
         case REHYDRATE:
-          console.log('UI REHYDRATE', state);
           if (!state.STORE_VERSION || state.STORE_VERSION < STORE_VERSION) return generateInitialState();
           // RESTORE TEMP VALUES TO WHAT THEY SHOULD BE!
           action.payload = action.payload || {};
@@ -83,17 +83,14 @@
 
         // Location
         case GET_LOCATION:
-          console.log('GET_LOCATION reducing');
           return Object.assign({}, state, {locationStatus: 'getting'});
         case RESPONSE_LOCATION:
-          console.log('RESPONSE_LOCATION reducing: ', action.userLocation);
           return Object.assign({}, state, {
             locationStatus: 'found',
             userLocation: action.userLocation,
             locationError: null
           });
         case ERROR_LOCATION:
-          console.log('ERROR_LOCATION reducing: ', action.payload);
           return Object.assign({}, state, {locationStatus: 'error', userLocation: null, locationError: action.payload});
 
         default:
@@ -124,7 +121,7 @@
       epics: [
         locationEpic
       ],
-      reducer: reducer
+      reducer
     }
 
   })();
