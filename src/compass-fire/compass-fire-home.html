@@ -12,53 +12,37 @@
         <style include="iron-flex iron-flex-alignment">
             :host {
                 display: block;
-                /*height: calc(100vh - 56px);*/
-                background-color: greenyellow;
             }
 
             iron-swipeable-pages {
                 @apply(--layout-flex);
-                height: calc(100vh - 56px - 36px);
-                background-color: greenyellow;
+                height: calc(100vh - 56px - 48px);
             }
 
-            /*iron-swipeable-pages > * {*/
-                /*-webkit-user-select: none;  !* Chrome all / Safari all *!*/
-                /*-moz-user-select: none;     !* Firefox all *!*/
-                /*-ms-user-select: none;      !* IE 10+ *!*/
-                /*user-select: none;          !* Likely future *!*/
-                /*cursor: default;*/
-            /*}*/
+            iron-swipeable-pages > * {
+                -webkit-user-select: none;  /* Chrome all / Safari all */
+                -moz-user-select: none;     /* Firefox all */
+                -ms-user-select: none;      /* IE 10+ */
+                user-select: none;          /* Likely future */
+                cursor: default;
+            }
 
             .page {
                 height: 100%;
             }
 
-            div {
-                color: white;
-                @apply(--layout-horizontal);
-                @apply(--layout-center-center);
-                @apply(--paper-font-display4);
-            }
-            div:nth-child(1) {
-                background: var(--paper-red-500);
-            }
-            div:nth-child(2) {
-                background: var(--paper-blue-500);
-            }
-            div:nth-child(3) {
-                background: var(--paper-orange-500);
-            }
-            div:nth-child(4) {
-                background: var(--paper-green-500);
-            }
-            div:nth-child(5) {
-                background: var(--paper-purple-500);
+            #footer {
+                min-height: 48px;
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                left: 0;
             }
 
             paper-pager {
-                min-height: 36px;
+                --paper-pager-color: var(--app-primary-color);
             }
+
         </style>
 
         <iron-swipeable-pages selected="{{selectedPage}}" threshold="0.2" no-cycle>
@@ -69,7 +53,7 @@
             <div class="page">Page 5</div>
         </iron-swipeable-pages>
 
-        <div>
+        <div id="footer" class="layout horizontal center around-justified">
             <paper-pager items-count="5" selected="{{selectedPage}}"></paper-pager>
         </div>
     </template>
