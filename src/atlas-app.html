@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
 <link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
@@ -25,6 +26,9 @@
             }
         </style>
 
+        <firebase-auth id="auth" user="{{user}}" provider="google" on-error="_handleFirebaseAuthError" status-known="{{authKnown}}">
+        </firebase-auth>
+
         <app-location route="{{route}}"></app-location>
         <app-route
                 route="{{route}}"
@@ -38,6 +42,7 @@
                 attr-for-selected="name"
                 fallback-selection="view404"
                 role="main">
+            <atlas-login name="login"></atlas-login>
             <atlas-selection name="selection"></atlas-selection>
             <compass-fire-app name="compass-fire"></compass-fire-app>
             <atlas-view404 name="view404"></atlas-view404>
@@ -71,6 +76,11 @@
               type: Number,
               statePath: 'main.STORE_VERSION',
               observer: '_storeVersionUpdate'
+            },
+            mainRoute: {
+              type: Number,
+              statePath: 'main.route',
+              observer: '_mainRouteChanged'
             }
           };
         }
@@ -94,14 +104,28 @@
           console.log('Main Store Version: ', version);
         }
 
+        _mainRouteChanged(mainRoute) {
+          if (!mainRoute) return;
+          window.history.replaceState({}, '', mainRoute);
+          this.fire('location-changed', {}, {node: window});
+        }
+
         _routePageChanged(page) {
           // Ignore page if it is not defined
           if (page === undefined) {
             return;
           }
 
+          // Capture users not logged in...
+          if (!this.authKnown && page.toLowerCase() !== 'login') {
+            this.dispatch('setRedirectAfterLogin', this.route.path);
+            window.history.replaceState({}, '', '/login');
+            this.fire('location-changed', {}, {node: window});
+            return;
+          }
+
           // Fallback to default view if no page is set.
-          this.page = page || 'compass-fire';  // 'selection' is the main app root.
+          this.page = page || 'login';  // 'selection' is the main app root.
         }
 
         _pageChanged(page) {
@@ -123,6 +147,10 @@
 
         _showPage404() {
           this.page = 'view404';
+        }
+
+        _handleFirebaseAuthError(error) {
+
         }
       }
 

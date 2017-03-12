@@ -5,8 +5,52 @@
 <script src="../../node_modules/@reactivex/rxjs/dist/global/Rx.js"></script>
 <script src="redux-observable.min.js"></script>
 <link rel="import" href="../../bower_components/polymer-redux/polymer-redux.html">
+<!-- Firebase Components -->
+<link rel="import" href="../../bower_components/polymerfire/firebase-app-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-database-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-storage-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-messaging-script.html">
 <!-- Importing stores -->
 <link rel="import" href="main-store.html">
+
+<script>
+  (function(){
+    /*
+    Setting up the Firebase app
+     */
+    function __computeApp(name, apiKey, authDomain, databaseUrl, storageBucket, messagingSenderId) {
+      if (apiKey && authDomain && databaseUrl) {
+        var init = [{
+          apiKey: apiKey,
+          authDomain: authDomain,
+          databaseURL: databaseUrl,
+          storageBucket: storageBucket,
+          messagingSenderId: messagingSenderId
+        }];
+
+        if (name) {
+          init.push(name);
+        }
+
+        firebase.initializeApp.apply(firebase, init);
+      } else {
+        return null;
+      }
+
+      return firebase.app(name);
+    }
+
+    window.FIREBASE_ATLAS_LABS = __computeApp(
+      null,
+      window.FIREBASE_CONFIG.apiKey,
+      window.FIREBASE_CONFIG.authDomain,
+      window.FIREBASE_CONFIG.databaseURL,
+      window.FIREBASE_CONFIG.storageBucket,
+      window.FIREBASE_CONFIG.messagingSenderId
+    );
+  })()
+</script>
 
 <script>
   (function () {

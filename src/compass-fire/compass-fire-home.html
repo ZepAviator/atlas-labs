@@ -1,11 +1,14 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../components/iron-swipeable-pages.html">
 <link rel="import" href="../components/paper-pager.html">
 <!-- Redux -->
 <link rel="import" href="../redux/redux.html">
 <!-- App Components -->
+<link rel="import" href="compass-fire-icons.html">
 
 <dom-module id="compass-fire-home">
     <template>
@@ -28,7 +31,7 @@
             }
 
             .page {
-                height: 100%;
+
             }
 
             #footer {
@@ -43,18 +46,38 @@
                 --paper-pager-color: var(--app-primary-color);
             }
 
+            .mainSelection {
+                padding: 24px;
+
+            }
+            .mainSelection paper-button {
+                text-transform: none;
+                font-weight: normal !important;
+            }
+            .mainSelection iron-icon {
+                color: var(--app-primary-color);
+                --iron-icon-width: 50px;
+                --iron-icon-height: 50px;
+            }
+
         </style>
 
         <iron-swipeable-pages selected="{{selectedPage}}" threshold="0.2" no-cycle>
-            <div class="page">Page 1</div>
+            <div class="page">
+                <div class="mainSelection layout horizontal wrap">
+                    <paper-button class="layout vertical">
+                        <iron-icon icon="compass:chat"></iron-icon>
+                        <span>Activity Feed</span>
+                    </paper-button>
+                </div>
+            </div>
             <div class="page">Page 2</div>
             <div class="page">Page 3</div>
             <div class="page">Page 4</div>
-            <div class="page">Page 5</div>
         </iron-swipeable-pages>
 
         <div id="footer" class="layout horizontal center around-justified">
-            <paper-pager items-count="5" selected="{{selectedPage}}"></paper-pager>
+            <paper-pager items-count="4" selected="{{selectedPage}}"></paper-pager>
         </div>
     </template>
 

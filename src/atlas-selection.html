@@ -1,25 +1,40 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="shared-styles.html">
 <!-- Redux -->
 <link rel="import" href="redux/redux.html">
 
 <dom-module id="atlas-selection">
   <template>
-    <style include="shared-styles">
+    <style include="shared-styles iron-flex iron-flex-alignment">
       :host {
         display: block;
 
         padding: 10px;
       }
+
+      paper-card {
+        margin: 24px;
+      }
     </style>
 
-    <div class="layout horizontal wrap">
-      <div class="card">
-        <div class="circle">1</div>
-        <h1>Atlas Selection</h1>
-        <p>This will soon be a selectoin to choose between sample projects.</p>
-      </div>
+    <app-location route="{{route}}"></app-location>
+    <div class="layout horizontal wrap around-justified">
+      <paper-card>
+        <div class="card-content">
+          <div class="circle">1</div>
+          <h1>Compass-Fire</h1>
+          <p>Experimeting with Firebase functions.</p>
+        </div>
+        <div class="card-actions">
+          <div class="layout horizontal end-justified">
+            <paper-button on-tap="_enterPage" value="/compass-fire">Enter</paper-button>
+          </div>
+        </div>
+      </paper-card>
     </div>
   </template>
 
@@ -27,7 +42,20 @@
     class AtlasSelection extends ReduxMixin(Polymer.mixinBehaviors(
       [Polymer.IronResizableBehavior],
       Polymer.Element)) {
+
       static get is() { return 'atlas-selection'; }
+
+      static get actions() {
+        return Object.assign({},
+          window.atlasLabs.stores.main.actions
+        );
+      }
+
+      _enterPage(e) {
+        let locaton = e.target.getAttribute('value');
+        if (!locaton) return;
+        this.dispatch('changeRoute', locaton);
+      }
     }
 
     window.customElements.define(AtlasSelection.is, AtlasSelection);

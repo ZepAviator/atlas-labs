@@ -7,6 +7,7 @@
     const RESPONSE_LOCATION = 'main/RESPONSE_LOCATION';
     const ERROR_LOCATION = 'main/ERROR_LOCATION';
     const CHANGE_ROUTE = 'main/CHANGE_ROUTE';
+    const REDIRECT_AFTER_LOGIN = 'main/REDIRECT_AFTER_LOGIN';
 
       /*
        Action Creator functions
@@ -14,6 +15,20 @@
     function updateUserLocation() {
       return {
         type: GET_LOCATION
+      }
+    }
+
+    function changeRoute(path) {
+      return {
+        type: CHANGE_ROUTE,
+        payload: path
+      }
+    }
+
+    function setRedirectAfterLogin(path) {
+      return {
+        type: REDIRECT_AFTER_LOGIN,
+        payload: path
       }
     }
 
@@ -70,6 +85,7 @@
           action.payload.main.locationStatus = null;
           action.payload.main.locationError = null;
           action.payload.main.route = state.route;
+          action.payload.main.redirectAfterLogin = state.redirectAfterLogin;
           return Object.assign({}, state, action.payload.main);
           return Object.assign({}, state, {
             locationStatus: null,
@@ -79,7 +95,9 @@
           return generateInitialState();
 
         case CHANGE_ROUTE:
-          return Object.assign({}, state, {route: action.route});
+          return Object.assign({}, state, {route: action.payload});
+        case REDIRECT_AFTER_LOGIN:
+          return Object.assign({}, state, {redirectAfterLogin: action.payload});
 
         // Location
         case GET_LOCATION:
@@ -101,10 +119,11 @@
     function generateInitialState() {
       return {
         STORE_VERSION: STORE_VERSION,
-        route: '/',
+        route: null,
+        redirectAfterLogin: null,
         locationStatus: null,
         userLocation: null,
-        locationError: null
+        locationError: null,
       }
     }
 
@@ -116,7 +135,9 @@
 
     window.atlasLabs.stores.main = {
       actions: {
-        updateUserLocation
+        updateUserLocation,
+        changeRoute,
+        setRedirectAfterLogin
       },
       epics: [
         locationEpic
