@@ -106,7 +106,7 @@
 
         _mainRouteChanged(mainRoute) {
           if (!mainRoute) return;
-          window.history.replaceState({}, '', mainRoute);
+          window.history.pushState({}, '', mainRoute);
           this.fire('location-changed', {}, {node: window});
         }
 

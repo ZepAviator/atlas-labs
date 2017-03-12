@@ -13,6 +13,7 @@
 <link rel="import" href="../../bower_components/polymerfire/firebase-messaging-script.html">
 <!-- Importing stores -->
 <link rel="import" href="main-store.html">
+<link rel="import" href="compass-store.html">
 
 <script>
   (function(){
@@ -66,7 +67,8 @@
 
     // Main redux combine reducer.
     const rootReducer = Redux.combineReducers({
-      main: window.atlasLabs.stores.main.reducer
+      main: window.atlasLabs.stores.main.reducer,
+      compass: window.atlasLabs.stores.compass.reducer
     });
 
     /*
@@ -76,7 +78,8 @@
     const rootEpic = ReduxObservable.combineEpics.apply(
       ReduxObservable.combineEpics,
       [].concat.apply([], [
-        window.atlasLabs.stores.main.epics
+        window.atlasLabs.stores.main.epics,
+        window.atlasLabs.stores.compass.epics
       ])
     );
     const epicMiddleware = ReduxObservable.createEpicMiddleware(rootEpic);

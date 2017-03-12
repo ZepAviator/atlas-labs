@@ -88,9 +88,9 @@
                 route="{{route}}"
                 pattern="/:page"
                 data="{{routeData}}"
-                tail="{{appRoute}}"></app-route>
+                tail="{{approute}}"></app-route>
         <app-route
-                route="{{appRoute}}"
+                route="{{approute}}"
                 pattern="/:appPage"
                 data="{{appRouteData}}"
                 tail="{{subroute}}"></app-route>
@@ -101,8 +101,7 @@
                 <app-toolbar>Menu</app-toolbar>
                 <iron-selector selected="[[appPage]]" attr-for-selected="name" class="drawer-list" role="navigation">
                     <a name="home" href="/compass-fire/home">Home</a>
-                    <a name="view2" href="/view2">View Two</a>
-                    <a name="view3" href="/view3">View Three</a>
+                    <a name="feed" href="/compass-fire/feed">Activity Feed</a>
                 </iron-selector>
             </app-drawer>
 
@@ -121,7 +120,8 @@
                         attr-for-selected="name"
                         fallback-selection="view404"
                         role="main">
-                    <compass-fire-home name="home"></compass-fire-home>
+                    <compass-fire-home name="home" selection="{{appPage}}"></compass-fire-home>
+                    <compass-fire-feed name="feed"></compass-fire-feed>
                     <compass-fire-blank name="blank"></compass-fire-blank>
                 </iron-pages>
             </app-header-layout>
@@ -164,6 +164,15 @@
         }
 
         _pageChanged(appPage) {
+          // THis is sloppy, there should be better routing in place...
+          if (this.routeData && this.routeData.page && this.routeData.page === 'compass-fire') {
+            if (this.appRouteData && this.appRouteData.appPage !== this.appPage) {
+              window.history.pushState({}, '', '/'+this.routeData.page+'/'+this.appPage);
+              this.fire('location-changed', {}, {node: window});
+            }
+          }
+
+          console.log('Page change: ', appPage);
           // Load page import on demand. Show 404 page if fails
           let resolvedPageUrl = this.resolveUrl('compass-fire-' + appPage + '.html');
           Polymer.importHref(

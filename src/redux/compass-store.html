@@ -1,0 +1,71 @@
+<script>
+  (function () {
+    const STORE_VERSION = 1; // Integer value
+    const REHYDRATE = 'persist/REHYDRATE'; // NOTE: Pulled from redux-persist, could change in future.
+    const RESET = 'compass/RESET';
+    const CHANGE_ROUTE = 'compass/CHANGE_ROUTE';
+
+      /*
+       Action Creators
+       */
+    function changeCompassRoute(path) {
+      return {
+        type: CHANGE_ROUTE,
+        payload: path
+      }
+    }
+
+      /*
+       Rx Observables for Async-Tasks  (redux-observable)
+       */
+
+
+      /*
+       Standard Redux Reducer
+       */
+    const reducer = (state, action) => {
+      if (!state) return generateInitialState();
+      switch (action.type) {
+        case REHYDRATE:
+          if (!state.STORE_VERSION || state.STORE_VERSION < STORE_VERSION) return generateInitialState();
+          action.payload = action.payload || {};
+          action.payload.compass = action.payload.main || {};
+          action.payload.compass.compassRoute = state.compassRoute; // Perhaps persist this?
+          return Object.assign({}, state, action.payload.compass);
+        case RESET:
+          return generateInitialState();
+
+        case CHANGE_ROUTE:
+          return Object.assign({}, state, {compassRoute: action.payload});
+
+
+        default:
+          return state;
+      }
+    };
+
+    function generateInitialState() {
+      return {
+        STORE_VERSION: STORE_VERSION,
+        compassRoute: null,
+      }
+    }
+
+      /*
+       Without exports (no webpack, I need to carefully leverage global state
+       */
+    window.atlasLabs = window.atlasLabs || {};
+    window.atlasLabs.stores = window.atlasLabs.stores || {};
+
+    window.atlasLabs.stores.compass = {
+      actions: {
+        changeCompassRoute,
+      },
+      epics: [
+
+      ],
+      reducer
+    }
+
+  })();
+</script>
