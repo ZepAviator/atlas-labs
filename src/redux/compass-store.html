@@ -4,6 +4,13 @@
     const REHYDRATE = 'persist/REHYDRATE'; // NOTE: Pulled from redux-persist, could change in future.
     const RESET = 'compass/RESET';
     const CHANGE_ROUTE = 'compass/CHANGE_ROUTE';
+    // Activiy Feed
+    const SUBMIT_MESSAGE = 'compass/SUBMIT_MESSAGE';
+    const SUBMIT_MESSAGE_SUCCESS = 'compass/SUBMIT_MESSAGE_SUCCESS';
+    const SUBMIT_MESSAGE_ERROR = 'compass/SUBMIT_MESSAGE_ERROR';
+    const GET_MESSAGES = 'compass/GET_MESSAGES';
+    const GET_MESSAGES_SUCCESS = 'compass/GET_MESSAGES_SUCCESS';
+    const GET_MESSAGES_ERROR = 'compass/GET_MESSAGES_ERROR';
 
       /*
        Action Creators
@@ -18,7 +25,10 @@
       /*
        Rx Observables for Async-Tasks  (redux-observable)
        */
+    const submitMessageEpic = (action$, state) => action$.ofType(SUBMIT_MESSAGE)
+      .mergeMap(action => {
 
+      })
 
       /*
        Standard Redux Reducer

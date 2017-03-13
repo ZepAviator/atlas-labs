@@ -1,15 +1,21 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
 <!-- Redux -->
 <link rel="import" href="../redux/redux.html">
 <!-- App Components -->
+<link rel="import" href="../atlas-icons.html">
 <link rel="import" href="compass-fire-icons.html">
+<link rel="import" href="compass-styles.html">
 <link rel="import" href="feed/compass-feed-card.html">
 
 <dom-module id="compass-fire-feed">
   <template>
-    <style include="iron-flex iron-flex-alignment">
+    <style include="compass-styles iron-flex iron-flex-alignment">
       :host {
         display: block;
         @apply(--layout-vertical);
@@ -41,8 +47,45 @@
         font-size: 1.5em;
         font-weight: 700;
       }
+
+      paper-fab {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        --paper-fab-background: var(--dark-primary-color);
+        --paper-fab-keyboard-focus-background: var(--dark-primary-color);
+      }
+
+      #enterMessage {
+        color: var(--default-primary-color, #2196F3);
+      }
+
+      #enterMessage paper-card {
+        margin: 16px;
+        background-color:  var(--secondary-background-color);
+      }
+
+      .card-content {
+        background-color: white;
+        height: 250px;
+      }
+
+      .full {
+        position: fixed;
+        right: 0;
+        top: 0;
+        left: 0;
+        bottom: 0;
+      }
+
+      .scrim {
+        background-color: rgba(0, 0, 0, 0.5);
+      }
     </style>
 
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/compass-fire/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
+    <app-route route="{{subroute}}" pattern="/:page" data="{{subrouteData}}"></app-route>
     <div id="mainContainer" class="layout vertical">
       <div class="layout vertical">
         <compass-feed-card></compass-feed-card>
@@ -51,6 +94,21 @@
         <compass-feed-card></compass-feed-card>
       </div>
     </div>
+    <paper-fab icon="main:add" on-tap="_enterMessage"></paper-fab>
+    <paper-material id="enterMessage" class="full layout vertical around-justified" elevation="0" hidden$="[[hideNewMessage]]">
+      <div class="scrim full"></div>
+        <paper-card heading="Compose new Message" elevation="3">
+          <div class="card-content">
+            <paper-textarea id="messageText" label="Enter up to 350 characters" char-counter maxlength="350" auto-validate value="{{message}}"></paper-textarea>
+          </div>
+          <div class="card-actions">
+            <div class="layout horizontal end-justified">
+              <paper-button on-tap="_cancelMessage">Cancel</paper-button>
+              <paper-button on-tap="_submitMessage">Post</paper-button>
+            </div>
+          </div>
+        </paper-card>
+    </paper-material>
   </template>
 
   <script>
@@ -62,6 +120,66 @@
         return Object.assign({},
           window.atlasLabs.stores.compass.actions
         );
+      }
+
+      static get properties() {
+        return {
+          hideNewMessage: {
+            type: Boolean,
+            value: true,
+            notify: true
+          },
+          message: {
+            type: String,
+            value: "#awesomeDemo "
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_routeActionChanged(subroute)',
+        ];
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+      }
+
+      _routeActionChanged(action) {
+        console.log('action: ', action);
+        if (action && action.path && action.path.toLowerCase().startsWith('/message')) {
+          this.hideNewMessage = false;
+        } else {
+          this.hideNewMessage = true;
+          this.message = "#awesomeDemo ";
+        }
+      }
+
+      _enterMessage() {
+        this.debounce('_enterMessage', e => {
+          this.set('route.path', '/compass-fire/feed/message');
+        }, 150);
+      }
+
+      _cancelMessage() {
+        this.debounce('_enterMessage', e => {
+          this.set('route.path', '/compass-fire/feed');
+        }, 150);
+      }
+
+      _submitMessage() {
+        this.debounce('_submitMessage', e => {
+          if (!this.message || this.message.length < 2) {
+            console.log('ERROR');
+            this.$.messageText.errorMessage = 'Please say something so we can share it!';
+            this.$.messageText.invalid = true;
+          }
+
+          // Submit to reducer
+
+          this._cancelMessage();
+        }, 150);
       }
 
     }
