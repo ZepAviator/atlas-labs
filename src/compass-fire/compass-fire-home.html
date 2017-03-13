@@ -64,6 +64,32 @@
                 pointer-events: none;
             }
 
+            .message {
+                color: var(--secondary-text-color, gray);
+                font-size: 2.1em;
+                font-weight: 700;
+            }
+
+            .message2 {
+                color: var(--secondary-text-color, gray);
+                font-size: 1.2em;
+                font-weight: 700;
+                text-align: center;
+                margin-top: 24px;
+            }
+
+            .message3 {
+                color: var(--secondary-text-color, gray);
+                font-size: 0.75em;
+                font-weight: 400;
+                text-align: center;
+                margin-top: 16px;
+            }
+
+            .comic {
+                margin: 36px;
+            }
+
         </style>
 
         <iron-swipeable-pages selected="{{selectedPage}}" threshold="0.2" no-cycle>
@@ -74,14 +100,42 @@
                         <span>Activity Feed</span>
                     </paper-button>
                 </div>
+                <div style="margin: 36px; max-width: 550px;">
+                    <span class="message">It only looks sparse,</span>
+                    <span class="message2">This area is equipped with a swippable pager view just waiting to be filled up with icons leading to incredible experiences!</span>
+                    <br><br>
+                    <span class="message2">Swipe around! I'll try to make a bit more interesting.</span>
+                    <br><br>
+                    <span class="message2">Of course...</span>
+                    <span class="message">the icon</span>
+                    <span class="message2"> beckons to be clicked.</span>
+                </div>
             </div>
-            <div class="page">Page 2</div>
-            <div class="page">Page 3</div>
-            <div class="page">Page 4</div>
+            <div class="page">
+                <div class="comic layout vertical center around-justified">
+                    <img src="/images/comics/comic-2.gif">
+                </div>
+            </div>
+            <div class="page">
+                <div class="comic layout vertical center around-justified">
+                    <img src="/images/comics/comic-5.png">
+                </div>
+            </div>
+            <div class="page">
+                <div class="comic layout vertical center around-justified">
+                    <img src="/images/comics/comic-6.jpg">
+                </div>
+            </div>
+            <div class="page">
+                <div class="comic layout vertical center around-justified">
+                    <img src="/images/comics/comic-7.jpg">
+                </div>
+            </div>
+            </div>
         </iron-swipeable-pages>
 
         <div id="footer" class="layout horizontal center around-justified">
-            <paper-pager items-count="4" selected="{{selectedPage}}"></paper-pager>
+            <paper-pager items-count="5" selected="{{selectedPage}}"></paper-pager>
         </div>
     </template>
 

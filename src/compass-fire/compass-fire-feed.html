@@ -71,6 +71,8 @@
       }
 
       #enterMessage paper-card {
+        max-width: 550px;
+        width: calc(100vw - 32px);
         margin: 16px;
         background-color:  var(--secondary-background-color);
       }
@@ -125,7 +127,7 @@
     </div>
     <paper-fab id="reloadFab" icon="compass:update" on-tap="refreshList"></paper-fab>
     <paper-fab id="addFab" icon="main:add" on-tap="_enterMessage"></paper-fab>
-    <paper-material id="enterMessage" class="full layout vertical around-justified" elevation="0" hidden$="[[hideNewMessage]]">
+    <paper-material id="enterMessage" class="full layout vertical center around-justified" elevation="0" hidden$="[[hideNewMessage]]">
       <div class="scrim full"></div>
         <paper-card heading="Compose new Message" elevation="3">
           <div class="card-content">

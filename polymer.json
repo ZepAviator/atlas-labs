@@ -7,6 +7,7 @@
     "src/atlas-view404.html",
     "src/compass-fire/compass-fire-app.html",
     "src/compass-fire/compass-fire-blank.html",
+    "src/compass-fire/compass-fire-feed.html",
     "src/compass-fire/compass-fire-home.html"
   ],
   "sources": [

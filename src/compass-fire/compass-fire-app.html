@@ -86,7 +86,6 @@
                 padding: 0 8px;
             }
 
-            \
         </style>
 
         <firebase-auth id="auth" user="{{user}}" status-known="{{authKnown}}"></firebase-auth>
@@ -102,7 +101,7 @@
                 data="{{appRouteData}}"
                 tail="{{subroute}}"></app-route>
 
-        <app-drawer-layout fullbleed>
+        <app-drawer-layout fullbleed force-narrow>
             <!-- Drawer content -->
             <app-drawer id="drawer" slot="drawer">
                 <app-toolbar>Menu</app-toolbar>
