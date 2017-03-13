@@ -23,6 +23,7 @@
             iron-pages {
                 height: 100vh;
                 min-height: 100vh;
+                overflow-y: scroll;
             }
         </style>
 
@@ -101,7 +102,7 @@
         }
 
         _storeVersionUpdate(version) {
-          console.log('Main Store Version: ', version);
+//          console.log('Main Store Version: ', version);
         }
 
         _mainRouteChanged(mainRoute) {
@@ -117,7 +118,7 @@
           }
 
           // Capture users not logged in...
-          if (!this.authKnown && page.toLowerCase() !== 'login') {
+          if (!this.authKnown && !this.user && page.toLowerCase() !== 'login') {
             this.dispatch('setRedirectAfterLogin', this.route.path);
             window.history.replaceState({}, '', '/login');
             this.fire('location-changed', {}, {node: window});

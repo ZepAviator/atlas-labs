@@ -21,7 +21,9 @@
     "node_modules/redux/dist/**/*",
     "node_modules/@reactivex/rxjs/dist/global/**/*",
     "node_modules/redux-persist/dist/redux-persist.min.js",
-    "node_modules/localforage/dist/localforage.min.js"
+    "node_modules/localforage/dist/localforage.min.js",
+    "bower_components/shadycss/apply-shim.min.js.map",
+    "bower_components/shadycss/custom-style-interface.min.js.map"
   ],
   "lint": {
     "rules": ["polymer-2"]

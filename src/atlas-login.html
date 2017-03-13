@@ -189,7 +189,7 @@
             this.page = 'checking';
             this.$.auth.signInAnonymously()
               .then((response) => {
-                console.log('signInAnonymously SUCCESS: ', response);
+//                console.log('signInAnonymously SUCCESS: ', response);
                 this.user = response;
                 this._authKnownChange(true);
               })
@@ -225,14 +225,18 @@
         }
 
         _authKnownChange(status) {
-          console.log('_authKnownChange ', status);
+//          console.log('_authKnownChange ', status);
           if (!status) {
             this.spinnerActive = true;
             this.page = 'checking';
             return;
           }
 
-          console.log('_authKnownChange user: ', this.user);
+          if (!this.link || this.link == '/') {
+            this.link = '/selection'
+          }
+
+//          console.log('_authKnownChange user: ', this.user);
           if (this.user) {
             window.history.replaceState({}, '', this.link);
             this.dispatch('setRedirectAfterLogin', null); // Clear out any saved state...
@@ -243,7 +247,7 @@
             window.setTimeout(() => {
               this.spinnerActive = false;
               this.page = 'login';
-            }, 10000);
+            }, 30000);
             return;
           }
 

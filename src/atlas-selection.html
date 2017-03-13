@@ -18,6 +18,17 @@
 
       paper-card {
         margin: 24px;
+        width: calc(100vw - 48px);
+        max-width: 400px;
+      }
+
+      /*.card-content {*/
+        /*min-width: 320px;*/
+      /*}*/
+
+      .card-actions paper-button {
+        background-color: var(--dark-primary-color, #388E3C);
+        color: var(--text-primary-color, #FFFFFF);
       }
     </style>
 
@@ -32,6 +43,47 @@
         <div class="card-actions">
           <div class="layout horizontal end-justified">
             <paper-button on-tap="_enterPage" value="/compass-fire">Enter</paper-button>
+          </div>
+        </div>
+      </paper-card>
+
+
+
+      <paper-card>
+        <div class="card-content">
+          <div class="circle">2</div>
+          <h1>Brian McBride</h1>
+          <p>Head to my resume site for a quick overview.</p>
+        </div>
+        <div class="card-actions">
+          <div class="layout horizontal end-justified">
+            <paper-button on-tap="_enterPage" value="https://brianmcbride.info">Visit</paper-button>
+          </div>
+        </div>
+      </paper-card>
+
+      <paper-card>
+        <div class="card-content">
+          <div class="circle">3</div>
+          <h1>This Site's Source</h1>
+          <p>Polymer 2.0 + Redux + RxJs + Firebase</p>
+        </div>
+        <div class="card-actions">
+          <div class="layout horizontal end-justified">
+            <paper-button on-tap="_enterPage" value="https://github.com/ZepAviator/atlas-labs">GitHub</paper-button>
+          </div>
+        </div>
+      </paper-card>
+
+      <paper-card>
+        <div class="card-content">
+          <div class="circle">4</div>
+          <h1>Zeppidy Inc.</h1>
+          <p>Platform for buying/selling a home.</p>
+        </div>
+        <div class="card-actions">
+          <div class="layout horizontal end-justified">
+            <paper-button on-tap="_enterPage" value="https://zeppidy.com">Visit</paper-button>
           </div>
         </div>
       </paper-card>
@@ -52,9 +104,14 @@
       }
 
       _enterPage(e) {
-        let locaton = e.target.getAttribute('value');
-        if (!locaton) return;
-        this.dispatch('changeRoute', locaton);
+        let targetURL = e.target.getAttribute('value');
+        if (!targetURL) return;
+
+        if (targetURL.startsWith('http')) {
+          return window.open(targetURL,'_blank');
+        }
+
+        this.dispatch('changeRoute', targetURL);
       }
     }
 
