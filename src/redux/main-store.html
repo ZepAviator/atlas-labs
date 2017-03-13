@@ -135,10 +135,6 @@
           action.payload.main.route = state.route;
           action.payload.main.redirectAfterLogin = state.redirectAfterLogin;
           return Object.assign({}, state, action.payload.main);
-          return Object.assign({}, state, {
-            locationStatus: null,
-            locationError: null
-          });
         case RESET:
           return generateInitialState();
 

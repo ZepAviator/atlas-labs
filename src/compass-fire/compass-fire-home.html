@@ -159,8 +159,7 @@
         }
 
         _selectView(e) {
-          let value = e.srcElement.getAttribute('value');
-          console.log('_selectView', value, e);
+          let value = (e && e.srcElement)  ? e.srcElement.getAttribute('value') :  e.target.getAttribute('value');
           if (!value) return;
           this.selection = value;
         }
