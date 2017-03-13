@@ -8,6 +8,10 @@
     const ERROR_LOCATION = 'main/ERROR_LOCATION';
     const CHANGE_ROUTE = 'main/CHANGE_ROUTE';
     const REDIRECT_AFTER_LOGIN = 'main/REDIRECT_AFTER_LOGIN';
+    // Updates user data to store and to Firebase.
+    const UPDATE_USER_DATA = 'main/UPDATE_USER_DATA';
+    const UPDATE_USER_DATA_SUCCESS = 'main/UPDATE_USER_DATA_SUCCESS';
+    const UPDATE_USER_DATA_ERROR = 'main/UPDATE_USER_DATA_ERROR';
 
       /*
        Action Creator functions
@@ -29,6 +33,14 @@
       return {
         type: REDIRECT_AFTER_LOGIN,
         payload: path
+      }
+    }
+
+    function updateUserData(uid, email, displayName, photoURL) {
+      displayName = displayName || 'Anonymous';
+      return {
+        type: UPDATE_USER_DATA,
+        payload: {uid, email, displayName, photoURL}
       }
     }
 
@@ -68,8 +80,38 @@
 
           navigator.geolocation.getCurrentPosition(success.bind(this), error.bind(this));
 
-        });
+        })
       });
+
+    const updateUserEpic = (action$, state) => action$.ofType(UPDATE_USER_DATA)
+      .mergeMap(action => {
+        let userId = firebase.auth().currentUser && firebase.auth().currentUser.uid;
+        if (!userId) {
+          return Rx.Observable.of({
+            type: UPDATE_USER_DATA_ERROR,
+            error: {
+              message: 'User is not logged in'
+            }
+          })
+        }
+
+        let userDataRef = firebase.database().ref('users/' + userId);
+        return Rx.Observable.fromPromise(userDataRef.update(action.payload))
+          .catch(error => {
+            console.error('Failed to update firebase: ', error);
+            return {
+              type: UPDATE_USER_DATA_ERROR,
+              error: error
+            }
+          })
+          .map((success) => {
+            return {
+              type: UPDATE_USER_DATA_SUCCESS
+            }
+          })
+
+      });
+
 
       /*
        Standard Redux Reducer
@@ -111,6 +153,9 @@
         case ERROR_LOCATION:
           return Object.assign({}, state, {locationStatus: 'error', userLocation: null, locationError: action.payload});
 
+        case UPDATE_USER_DATA:
+          return Object.assign({}, state, action.payload);
+
         default:
           return state;
       }
@@ -137,10 +182,12 @@
       actions: {
         updateUserLocation,
         changeRoute,
-        setRedirectAfterLogin
+        setRedirectAfterLogin,
+        updateUserData,
       },
       epics: [
-        locationEpic
+        locationEpic,
+        updateUserEpic
       ],
       reducer
     }

@@ -22,13 +22,47 @@
       }
     }
 
+    function submitMessage(text) {
+      return {
+        type: SUBMIT_MESSAGE,
+        payload: text
+      }
+    }
+
       /*
        Rx Observables for Async-Tasks  (redux-observable)
        */
     const submitMessageEpic = (action$, state) => action$.ofType(SUBMIT_MESSAGE)
       .mergeMap(action => {
+        // In this case, I want to save into the user an array of "actions" similar to what is in this file.
+        let userId = firebase.auth().currentUser && firebase.auth().currentUser.uid;
+        if (!userId) {
+          return Rx.Observable.of({
+            type: SUBMIT_MESSAGE_ERROR,
+            error: {
+              message: 'User is not logged in'
+            }
+          })
+        }
 
-      })
+        let mainState = state.getState().main;
+        let actions = firebase.database().ref('/users/' + userId).child('actions');
+        return Rx.Observable.fromPromise(actions.push({
+          type: SUBMIT_MESSAGE,
+          payload: {
+            owner: mainState.uid,
+            displayName: mainState.displayName,
+            photoURL: mainState.photoURL,
+            message: action.payload
+          }
+        })).map(success => {
+          console.log('Message action save success: ', success);
+          return {
+            type: SUBMIT_MESSAGE_SUCCESS,
+          }
+        })
+
+      });
 
       /*
        Standard Redux Reducer
@@ -41,12 +75,18 @@
           action.payload = action.payload || {};
           action.payload.compass = action.payload.main || {};
           action.payload.compass.compassRoute = state.compassRoute; // Perhaps persist this?
+          action.payload.compass.submittingMessage = state.submittingMessage;
           return Object.assign({}, state, action.payload.compass);
         case RESET:
           return generateInitialState();
 
         case CHANGE_ROUTE:
           return Object.assign({}, state, {compassRoute: action.payload});
+
+        case SUBMIT_MESSAGE:
+          return Object.assign({}, state, {submittingMessage: true});
+        case SUBMIT_MESSAGE_SUCCESS:
+          return Object.assign({}, state, {submittingMessage: false});
 
 
         default:
@@ -70,9 +110,10 @@
     window.atlasLabs.stores.compass = {
       actions: {
         changeCompassRoute,
+        submitMessage,
       },
       epics: [
-
+        submitMessageEpic,
       ],
       reducer
     }

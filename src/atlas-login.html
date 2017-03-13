@@ -205,6 +205,7 @@
           if (this.user) {
             window.history.replaceState({}, '', this.link);
             this.dispatch('setRedirectAfterLogin', null); // Clear out any saved state...
+            this.dispatch('updateUserData', this.user.uid, this.user.email, this.user.displayName, this.user.photoURL);
             this.fire('location-changed', {}, {node: window});
             this.spinnerActive = false;
             this.page = 'redirect';

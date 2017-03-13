@@ -20,6 +20,7 @@
     <template>
         <style include="iron-flex iron-flex-alignment">
             :host {
+
                 --app-primary-color: #4285f4;
                 --app-secondary-color: black;
                 display: block;
@@ -32,6 +33,9 @@
                 /* paper-menu */
                 --paper-menu-background-color: #fff;
                 --menu-link-color:             #111111;
+            }
+
+            app-drawer-layout {
             }
 
             app-drawer-layout:not([narrow]) [drawer-toggle] {
@@ -172,7 +176,6 @@
             }
           }
 
-          console.log('Page change: ', appPage);
           // Load page import on demand. Show 404 page if fails
           let resolvedPageUrl = this.resolveUrl('compass-fire-' + appPage + '.html');
           Polymer.importHref(
