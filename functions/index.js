@@ -49,7 +49,10 @@ exports.processActions = functions.database.ref('/users/{userId}/actions')
             return Rx.Observable.fromPromise(messages.push(action.payload))
               .map(success => action);
           })
-          .reduce((collection, action) => collection.push(action), [])
+          .reduce((collection, action) => {
+            collection = collection || [];
+            collection.push(action);
+          }, [])
       })
       .toPromise();
   });
