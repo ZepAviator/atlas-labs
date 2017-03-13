@@ -88,12 +88,12 @@
                 <div id="infoBlock" class="layout horizontal">
                     <img class="user-image" src="{{image}}">
                     <div class="details layout vertical">
-                        <span class="name">Name</span>
-                        <span class="date">Date</span>
-                        <span class="location">Location</span>
+                        <span class="name">[[name]]</span>
+                        <span class="date">[[date]]</span>
+                        <!--<span class="location">Location</span>-->
                     </div>
                 </div>
-                <div class="message">Message</div>
+                <div class="message">[[message]]</div>
                 <div class="card-actions">
                     <div class="layout horizontal start-justified">
                         <paper-button>
@@ -116,7 +116,19 @@
           return {
             image: {
               type: String,
-              value: 'https://lh6.googleusercontent.com/-y4_O5mdL1LI/AAAAAAAAAAI/AAAAAAAAEXc/DgJhRXbd9hI/photo.jpg?sz=100'
+              value: ''
+            },
+            name: {
+              type: String,
+              value: 'Anonymous'
+            },
+            date: {
+              type: String,
+              value: ''
+            },
+            message: {
+              type: String,
+              value: ''
             }
           }
         }

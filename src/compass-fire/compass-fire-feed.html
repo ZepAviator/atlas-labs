@@ -7,8 +7,10 @@
 <link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
 <!-- Redux -->
 <link rel="import" href="../redux/redux.html">
+<link rel="import" href="../../bower_components/firebase-paginator/firebase-paginator.html">
 <!-- App Components -->
 <link rel="import" href="../atlas-icons.html">
+<link rel="import" href="../components/atlas-snackbar.html">
 <link rel="import" href="compass-fire-icons.html">
 <link rel="import" href="compass-styles.html">
 <link rel="import" href="feed/compass-feed-card.html">
@@ -81,17 +83,35 @@
       .scrim {
         background-color: rgba(0, 0, 0, 0.5);
       }
-    </style>
 
+      atlas-snackbar {
+        background-color: var(--primary-text-color);
+        margin: 0 32px;
+      }
+    </style>
+    <firebase-paginator
+            id="paginator"
+            ref="[[ref]]"
+            options="[[options]]"
+            collection="{{collection}}"
+            is-last-page="{{isLastPage}}"
+            page-number="{{pageNumber}}"
+            page-count="{{pageCount}}"
+            on-page-number-changed="_handlePageNumberChange">
+    </firebase-paginator>
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/compass-fire/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
     <app-route route="{{subroute}}" pattern="/:page" data="{{subrouteData}}"></app-route>
     <div id="mainContainer" class="layout vertical">
       <div class="layout vertical">
-        <compass-feed-card></compass-feed-card>
-        <compass-feed-card></compass-feed-card>
-        <compass-feed-card></compass-feed-card>
-        <compass-feed-card></compass-feed-card>
+        <template is="dom-repeat" items="[[currentMessages]]">
+          <compass-feed-card
+            name="[[item.payload.displayName]]"
+            date="[[item.payload.dateTime]]"
+            message="[[item.payload.message]]"
+            image="[[item.payload.photoURL]]"
+          ></compass-feed-card>
+        </template>
       </div>
     </div>
     <paper-fab icon="main:add" on-tap="_enterMessage"></paper-fab>
@@ -109,6 +129,13 @@
           </div>
         </paper-card>
     </paper-material>
+    <atlas-snackbar id="snackbar">
+      <div class="layout horizontal center end-justified">
+        <span class="flex" style="text-align: left;">New Message!</span>
+        <paper-button on-tap="dismissSnackbar">Dismiss</paper-button>
+        <paper-button on-tap="refreshList">View</paper-button>
+      </div>
+    </atlas-snackbar>
   </template>
 
   <script>
@@ -132,7 +159,20 @@
           message: {
             type: String,
             value: "#awesomeDemo "
-          }
+          },
+          ref: {
+            type: Object,
+            value: function(){return firebase.database().ref('compass/messages');}
+          },
+          currentMessages: {
+            type: Array,
+            observer: 'messagesChanged'
+          },
+          options: {
+            finite: false,
+            pageSize: 30
+          },
+
         }
       }
 
@@ -144,7 +184,36 @@
 
       connectedCallback() {
         super.connectedCallback();
+        this.$.paginator.addEventListener('collection-changed', e => {
+          let collection = e.detail.value;
+          let keys = Object.keys(collection);
+          let i = keys.length;
+          let listItems = [];
+          while (i--) {
+            listItems.push({
+              key: keys[i],
+              payload: collection[keys[i]]
+            });
+          }
+          this.currentMessages = listItems;
+        });
+
+        firebase.database().ref('compass/messages').on('value', snapshot => {
+          if (this.$.snackbar && this.firstRun) {
+            this.$.snackbar.open();
+          } else {
+            this.firstRun = true;
+          }
+        });
       }
+
+      messagesChanged(list) {
+        console.log('messagesChanged', list)
+      }
+
+      _handlePageNumberChange(e) {
+        this.isFirstPage = e.detail.value === 1;
+      };
 
       _routeActionChanged(action) {
         if (action && action.path && action.path.toLowerCase().startsWith('/message')) {
@@ -179,7 +248,16 @@
           this.dispatch('submitMessage', this.message);
 
           this._cancelMessage();
-        }, 150);
+        }, 200);
+      }
+
+      dismissSnackbar() {
+        this.$.snackbar.close();
+      }
+
+      refreshList() {
+        this.$.snackbar.close();
+        this.$.paginator.reset();
       }
 
     }
