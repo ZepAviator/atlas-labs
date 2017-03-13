@@ -12,10 +12,10 @@
     const GET_MESSAGES_SUCCESS = 'compass/GET_MESSAGES_SUCCESS';
     const GET_MESSAGES_ERROR = 'compass/GET_MESSAGES_ERROR';
 
-    /*
-    I'm unsure if I like this practice... I'm going to keep a local pager reference
-    to the compass firebase messages.
-    */
+      /*
+       I'm unsure if I like this practice... I'm going to keep a local pager reference
+       to the compass firebase messages.
+       */
 //    let messages = firebase.database().ref('/compass/messages');
 //    let FirebasePaginator = window.FirebasePaginator;
 //    let paginator = new FirebasePaginator(messages, {
@@ -27,6 +27,12 @@
       /*
        Action Creators
        */
+    function resetCompass() {
+      return {
+        type: RESET
+      }
+    }
+
     function changeCompassRoute(path) {
       return {
         type: CHANGE_ROUTE,
@@ -124,6 +130,7 @@
 
     window.atlasLabs.stores.compass = {
       actions: {
+        resetCompass,
         changeCompassRoute,
         submitMessage,
       },

@@ -86,7 +86,12 @@
         <paper-card>
             <div class="card-content">
                 <div id="infoBlock" class="layout horizontal">
-                    <img class="user-image" src="{{image}}">
+                    <template is="dom-if" if="[[image]]">
+                        <img class="user-image" src="{{image}}">
+                    </template>
+                    <template is="dom-if" if="[[!image]]">
+                        <img class="user-image" src="{{defaultImage}}">
+                    </template>
                     <div class="details layout vertical">
                         <span class="name">[[name]]</span>
                         <span class="date">[[date]]</span>
@@ -129,8 +134,16 @@
             message: {
               type: String,
               value: ''
+            },
+            defaultImage: {
+              type: String,
+              computed: 'generateImage(date)'
             }
           }
+        }
+
+        generateImage(date) {
+          return 'https://api.adorable.io/avatars/100/'+date+'@adorable.io.png';
         }
 
       }

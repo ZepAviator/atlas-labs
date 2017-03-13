@@ -50,10 +50,18 @@
         font-weight: 700;
       }
 
-      paper-fab {
+      #addFab {
         position: fixed;
         right: 16px;
         bottom: 16px;
+        --paper-fab-background: var(--dark-primary-color);
+        --paper-fab-keyboard-focus-background: var(--dark-primary-color);
+      }
+
+      #reloadFab {
+        position: fixed;
+        right: 16px;
+        bottom: 86px;
         --paper-fab-background: var(--dark-primary-color);
         --paper-fab-keyboard-focus-background: var(--dark-primary-color);
       }
@@ -112,9 +120,11 @@
             image="[[item.payload.photoURL]]"
           ></compass-feed-card>
         </template>
+        <div style="min-height: 100px;"></div>
       </div>
     </div>
-    <paper-fab icon="main:add" on-tap="_enterMessage"></paper-fab>
+    <paper-fab id="reloadFab" icon="compass:update" on-tap="refreshList"></paper-fab>
+    <paper-fab id="addFab" icon="main:add" on-tap="_enterMessage"></paper-fab>
     <paper-material id="enterMessage" class="full layout vertical around-justified" elevation="0" hidden$="[[hideNewMessage]]">
       <div class="scrim full"></div>
         <paper-card heading="Compose new Message" elevation="3">
@@ -199,11 +209,19 @@
         });
 
         firebase.database().ref('compass/messages').on('value', snapshot => {
-          if (this.$.snackbar && this.firstRun) {
-            this.$.snackbar.open();
-          } else {
-            this.firstRun = true;
-          }
+          // Slight debounce just in case a few updates pile in on one another...
+          this.debounce('firebaseUpdate', () => {
+            if (this.pleaseRefresh == true) {
+              this.refreshList();
+              this.pleaseRefresh = false;
+            }
+
+            if (this.$.snackbar && this.firstRun) {
+              this.$.snackbar.open();
+            } else {
+              this.firstRun = true;
+            }
+          }, 10)
         });
       }
 
@@ -218,9 +236,14 @@
       _routeActionChanged(action) {
         if (action && action.path && action.path.toLowerCase().startsWith('/message')) {
           this.hideNewMessage = false;
+          if (this.hasLeft) {
+            this.$.paginator.reset();
+            this.hasLeft = false;
+          }
         } else {
           this.hideNewMessage = true;
           this.message = "#awesomeDemo ";
+          this.hasLeft = true;
         }
       }
 
@@ -246,6 +269,7 @@
 
           // Submit to reducer
           this.dispatch('submitMessage', this.message);
+          this.pleaseRefresh = true;
 
           this._cancelMessage();
         }, 200);

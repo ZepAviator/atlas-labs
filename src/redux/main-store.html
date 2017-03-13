@@ -16,6 +16,12 @@
       /*
        Action Creator functions
        */
+    function resetMain() {
+      return {
+        type: RESET
+      }
+    }
+
     function updateUserLocation() {
       return {
         type: GET_LOCATION
@@ -99,10 +105,10 @@
         return Rx.Observable.fromPromise(userDataRef.update(action.payload))
           .catch(error => {
             console.error('Failed to update firebase: ', error);
-            return {
+            return Rx.Observable.of({
               type: UPDATE_USER_DATA_ERROR,
               error: error
-            }
+            })
           })
           .map((success) => {
             return {
@@ -180,6 +186,7 @@
 
     window.atlasLabs.stores.main = {
       actions: {
+        resetMain,
         updateUserLocation,
         changeRoute,
         setRedirectAfterLogin,

@@ -26,13 +26,13 @@
                 display: block;
 
                 /* paper-drawer-panel */
-                --drawer-menu-color:           #ffffff;
-                --drawer-border-color:         1px solid #ccc;
+                --drawer-menu-color: #ffffff;
+                --drawer-border-color: 1px solid #ccc;
                 --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
 
                 /* paper-menu */
                 --paper-menu-background-color: #fff;
-                --menu-link-color:             #111111;
+                --menu-link-color: #111111;
             }
 
             app-drawer-layout {
@@ -84,9 +84,12 @@
             #compassFireToolbar {
                 height: 56px;
                 padding: 0 8px;
-            }\
+            }
+
+            \
         </style>
 
+        <firebase-auth id="auth" user="{{user}}" status-known="{{authKnown}}"></firebase-auth>
         <app-location route="{{route}}"></app-location>
         <app-route
                 route="{{route}}"
@@ -106,6 +109,12 @@
                 <iron-selector selected="[[appPage]]" attr-for-selected="name" class="drawer-list" role="navigation">
                     <a name="home" href="/compass-fire/home">Home</a>
                     <a name="feed" href="/compass-fire/feed">Activity Feed</a>
+                    <template is="dom-if" if="[[loggedIn]]">
+                        <a name="feed" href="/compass-fire/logout">Logout</a>
+                    </template>
+                    <template is="dom-if" if="[[!loggedIn]]">
+                        <a name="feed" href="/compass-fire/login">login</a>
+                    </template>
                 </iron-selector>
             </app-drawer>
 
@@ -138,7 +147,16 @@
         [Polymer.IronResizableBehavior],
         Polymer.Element)) {
 
-        static get is() { return 'compass-fire-app'; }
+        static get is() {
+          return 'compass-fire-app';
+        }
+
+        static get actions() {
+          return Object.assign({},
+            window.atlasLabs.stores.main.actions,
+            window.atlasLabs.stores.compass.actions
+          );
+        }
 
         static get properties() {
           return {
@@ -147,6 +165,14 @@
               reflectToAttribute: true,
               observer: '_pageChanged',
             },
+            user: {
+              type: Object,
+              observer: '_userChange'
+            },
+            loggedIn: {
+              type: Boolean,
+              value: false
+            }
           };
         }
 
@@ -154,6 +180,10 @@
           return [
             '_routePageChanged(appRouteData.appPage)',
           ];
+        }
+
+        _userChange(user) {
+          this.loggedIn = (user) ? true : false;
         }
 
         _routePageChanged(appPage) {
@@ -171,9 +201,22 @@
           // THis is sloppy, there should be better routing in place...
           if (this.routeData && this.routeData.page && this.routeData.page === 'compass-fire') {
             if (this.appRouteData && this.appRouteData.appPage !== this.appPage) {
-              window.history.pushState({}, '', '/'+this.routeData.page+'/'+this.appPage);
+              window.history.pushState({}, '', '/' + this.routeData.page + '/' + this.appPage);
               this.fire('location-changed', {}, {node: window});
             }
+          }
+
+          if (appPage && appPage.toLowerCase() == 'login') {
+            this.dispatch('setRedirectAfterLogin', this.route.path);
+            this.set('route.path', '/login');
+            return;
+          }
+          if (appPage && appPage.toLowerCase() == 'logout') {
+            this.$.auth.signOut();
+            this.dispatch('resetCompass');
+            this.dispatch('resetMain');
+            this.set('route.path', '/login');
+            return;
           }
 
           // Load page import on demand. Show 404 page if fails

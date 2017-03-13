@@ -78,7 +78,8 @@
             }
         </style>
 
-        <firebase-auth id="auth" user="{{user}}" provider="google" on-error="_handleFirebaseAuthError" status-known="{{authKnown}}"></firebase-auth>
+        <firebase-auth id="auth" user="{{user}}" provider="google" on-error="_handleFirebaseAuthError"
+                       status-known="{{authKnown}}"></firebase-auth>
         <app-location route="{{route}}"></app-location>
         <div id="container" class="layout horizontal center around-justified">
             <iron-pages
@@ -92,8 +93,8 @@
                     <span class="message3">There will be no sharing of any data outside this demo.</span>
                     <div id="actions" class="layout vertical center">
                         <paper-button on-tap="_signInWithGoogle" class="best-choice">Sign-in with Google</paper-button>
-                        <paper-button>Continue Anonymous</paper-button>
-                        <paper-button on-tap="_signOut">Sign-Out</paper-button>
+                        <paper-button on-tap="_signUpWithAnon">Continue Anonymous</paper-button>
+                        <!--<paper-button on-tap="_signOut">Sign-Out</paper-button>-->
                     </div>
                 </div>
                 <div name="checking" class="layout vertical center">
@@ -181,6 +182,25 @@
           }, 150)
         }
 
+        _signUpWithAnon(e) {
+          this.debounce('_signUpWithAnon', () => {
+            this.spinnerActive = true;
+            this.page = 'checking';
+            this.$.auth.signInAnonymously()
+              .then((response) => {
+                console.log('signInAnonymously SUCCESS: ', response);
+                this.user = response;
+                this._authKnownChange(true);
+              })
+              .catch((error) => {
+                console.error('signInAnonymously FAIL: ', error);
+                window.alert('Something bad with the lab :(');
+                this.spinnerActive = false;
+                this.page = 'login';
+              });
+          }, 150)
+        }
+
         _handleFirebaseAuthError(error) {
           console.error('Uh... got a firebase error! ', error.detail);
           window.alert('Error logging in');
@@ -188,20 +208,30 @@
 
         _redirectPathChange(path) {
           if (!path) return;
+
+          if (this.authKnown && !this.user) {
+            this.spinnerActive = false;
+            this.page = 'login';
+          }
+
           this.link = (path.startsWith('/') ? path : '/' + path);
         }
 
         _userLoginChange(user) {
-
+            if (!user && this.page == 'redirect') {
+              this.page = 'login';
+            }
         }
 
         _authKnownChange(status) {
+          console.log('_authKnownChange ', status);
           if (!status) {
             this.spinnerActive = true;
             this.page = 'checking';
             return;
           }
 
+          console.log('_authKnownChange user: ', this.user);
           if (this.user) {
             window.history.replaceState({}, '', this.link);
             this.dispatch('setRedirectAfterLogin', null); // Clear out any saved state...
@@ -209,6 +239,10 @@
             this.fire('location-changed', {}, {node: window});
             this.spinnerActive = false;
             this.page = 'redirect';
+            window.setTimeout(() => {
+              this.spinnerActive = false;
+              this.page = 'login';
+            }, 10000);
             return;
           }
 
