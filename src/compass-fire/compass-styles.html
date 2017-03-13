@@ -8,21 +8,22 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 
 <!-- shared styles for all views -->
-<dom-module id="shared-styles">
+<dom-module id="compass-styles">
   <template>
     <style is="custom-style" >
       :host > * {
         font-family: 'Roboto', 'Noto', sans-serif;
 
-        --dark-primary-color:       #388E3C;
-        --default-primary-color:    #4CAF50;
-        --light-primary-color:      #C8E6C9;
+        --dark-primary-color:       #1976D2;
+        --default-primary-color:    #2196F3;
+        --light-primary-color:      #BBDEFB;
         --text-primary-color:       #FFFFFF;
-        --accent-color:             #FFC107;
-        --primary-background-color: #fff;
+        --accent-color:             #8BC34A;
+        --primary-background-color: #FFFFFF;
+        --secondary-background-color: #EEEEEE;
         --primary-text-color:       #212121;
         --secondary-text-color:     #757575;
         --disabled-text-color:      #BDBDBD;
@@ -80,7 +81,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       [hidden] { display: none !important; }
-
     </style>
   </template>
 </dom-module>

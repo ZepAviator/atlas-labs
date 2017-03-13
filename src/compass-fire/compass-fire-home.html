@@ -1,0 +1,172 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../components/iron-swipeable-pages.html">
+<link rel="import" href="../components/paper-pager.html">
+<!-- Redux -->
+<link rel="import" href="../redux/redux.html">
+<!-- App Components -->
+<link rel="import" href="compass-fire-icons.html">
+
+<dom-module id="compass-fire-home">
+    <template>
+        <style include="iron-flex iron-flex-alignment">
+            :host {
+                display: block;
+            }
+
+            iron-swipeable-pages {
+                @apply(--layout-flex);
+                height: calc(100vh - 56px - 48px);
+            }
+
+            iron-swipeable-pages > * {
+                -webkit-user-select: none;  /* Chrome all / Safari all */
+                -moz-user-select: none;     /* Firefox all */
+                -ms-user-select: none;      /* IE 10+ */
+                user-select: none;          /* Likely future */
+                cursor: default;
+            }
+
+            .page {
+
+            }
+
+            #footer {
+                min-height: 48px;
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                left: 0;
+            }
+
+            paper-pager {
+                --paper-pager-color: var(--app-primary-color);
+            }
+
+            .mainSelection {
+                padding: 24px;
+
+            }
+            .mainSelection paper-button {
+                text-transform: none;
+                font-weight: normal !important;
+            }
+            .mainSelection iron-icon {
+                color: var(--app-primary-color);
+                --iron-icon-width: 50px;
+                --iron-icon-height: 50px;
+                pointer-events: none;
+            }
+            .mainSelection span {
+                pointer-events: none;
+            }
+
+            .message {
+                color: var(--secondary-text-color, gray);
+                font-size: 2.1em;
+                font-weight: 700;
+            }
+
+            .message2 {
+                color: var(--secondary-text-color, gray);
+                font-size: 1.2em;
+                font-weight: 700;
+                text-align: center;
+                margin-top: 24px;
+            }
+
+            .message3 {
+                color: var(--secondary-text-color, gray);
+                font-size: 0.75em;
+                font-weight: 400;
+                text-align: center;
+                margin-top: 16px;
+            }
+
+            .comic {
+                margin: 36px;
+            }
+
+        </style>
+
+        <iron-swipeable-pages selected="{{selectedPage}}" threshold="0.2" no-cycle>
+            <div class="page">
+                <div class="mainSelection layout horizontal wrap">
+                    <paper-button class="layout vertical" value="feed" on-tap="_selectView">
+                        <iron-icon icon="compass:chat"></iron-icon>
+                        <span>Activity Feed</span>
+                    </paper-button>
+                </div>
+                <div style="margin: 36px; max-width: 550px;">
+                    <span class="message">It only looks sparse,</span>
+                    <span class="message2">This area is equipped with a swippable pager view just waiting to be filled up with icons leading to incredible experiences!</span>
+                    <br><br>
+                    <span class="message2">Swipe around! I'll try to make a bit more interesting.</span>
+                    <br><br>
+                    <span class="message2">Of course...</span>
+                    <span class="message">the icon</span>
+                    <span class="message2"> beckons to be clicked.</span>
+                </div>
+            </div>
+            <div class="page">
+                <div class="comic layout vertical center around-justified">
+                    <img src="/images/comics/comic-2.gif">
+                </div>
+            </div>
+            <div class="page">
+                <div class="comic layout vertical center around-justified">
+                    <img src="/images/comics/comic-5.png">
+                </div>
+            </div>
+            <div class="page">
+                <div class="comic layout vertical center around-justified">
+                    <img src="/images/comics/comic-6.jpg">
+                </div>
+            </div>
+            <div class="page">
+                <div class="comic layout vertical center around-justified">
+                    <img src="/images/comics/comic-7.jpg">
+                </div>
+            </div>
+            </div>
+        </iron-swipeable-pages>
+
+        <div id="footer" class="layout horizontal center around-justified">
+            <paper-pager items-count="5" selected="{{selectedPage}}"></paper-pager>
+        </div>
+    </template>
+
+    <script>
+      class CompassFireHome extends Polymer.mixinBehaviors(
+        [Polymer.IronResizableBehavior], Polymer.Element) {
+        static get is() { return 'compass-fire-home'; }
+
+        static get properties() {
+          return {
+            selectedPage: {
+              type: Number,
+              value: 0
+            },
+            selection: {
+              type: String,
+              notify: true,
+              reflectToAttribute: true,
+            }
+          }
+        }
+
+        _selectView(e) {
+          let value = e.srcElement.getAttribute('value');
+          console.log('_selectView', value, e);
+          if (!value) return;
+          this.selection = value;
+        }
+
+      }
+
+      window.customElements.define(CompassFireHome.is, CompassFireHome);
+    </script>
+</dom-module>

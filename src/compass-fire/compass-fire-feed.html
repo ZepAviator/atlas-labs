@@ -1,0 +1,293 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
+<!-- Redux -->
+<link rel="import" href="../redux/redux.html">
+<link rel="import" href="../../bower_components/firebase-paginator/firebase-paginator.html">
+<!-- App Components -->
+<link rel="import" href="../atlas-icons.html">
+<link rel="import" href="../components/atlas-snackbar.html">
+<link rel="import" href="compass-fire-icons.html">
+<link rel="import" href="compass-styles.html">
+<link rel="import" href="feed/compass-feed-card.html">
+
+<dom-module id="compass-fire-feed">
+  <template>
+    <style include="compass-styles iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+      }
+
+      #mainContainer {
+        height: calc(100vh - 56px);
+        background-color: lightgray;
+      }
+
+      .logo-icon {
+        --iron-icon-width: 200px;
+        --iron-icon-height: 200px;
+        --iron-icon-fill-color: var(--disabled-text-color, gray);
+      }
+
+      iron-icon {
+        margin-bottom: 24px;
+      }
+
+      .message {
+        color: var(--secondary-text-color, gray);
+        font-size: 3em;
+        font-weight: 700;
+      }
+
+      .message2 {
+        color: var(--secondary-text-color, gray);
+        font-size: 1.5em;
+        font-weight: 700;
+      }
+
+      #addFab {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        --paper-fab-background: var(--dark-primary-color);
+        --paper-fab-keyboard-focus-background: var(--dark-primary-color);
+      }
+
+      #reloadFab {
+        position: fixed;
+        right: 16px;
+        bottom: 86px;
+        --paper-fab-background: var(--dark-primary-color);
+        --paper-fab-keyboard-focus-background: var(--dark-primary-color);
+      }
+
+      #enterMessage {
+        color: var(--default-primary-color, #2196F3);
+      }
+
+      #enterMessage paper-card {
+        max-width: 550px;
+        width: calc(100vw - 32px);
+        margin: 16px;
+        background-color:  var(--secondary-background-color);
+      }
+
+      .card-content {
+        background-color: white;
+        height: 250px;
+      }
+
+      .full {
+        position: fixed;
+        right: 0;
+        top: 0;
+        left: 0;
+        bottom: 0;
+      }
+
+      .scrim {
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      atlas-snackbar {
+        background-color: var(--primary-text-color);
+        margin: 0 32px;
+      }
+    </style>
+    <firebase-paginator
+            id="paginator"
+            ref="[[ref]]"
+            options="[[options]]"
+            collection="{{collection}}"
+            is-last-page="{{isLastPage}}"
+            page-number="{{pageNumber}}"
+            page-count="{{pageCount}}"
+            on-page-number-changed="_handlePageNumberChange">
+    </firebase-paginator>
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/compass-fire/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
+    <app-route route="{{subroute}}" pattern="/:page" data="{{subrouteData}}"></app-route>
+    <div id="mainContainer" class="layout vertical">
+      <div class="layout vertical">
+        <template is="dom-repeat" items="[[currentMessages]]">
+          <compass-feed-card
+            name="[[item.payload.displayName]]"
+            date="[[item.payload.dateTime]]"
+            message="[[item.payload.message]]"
+            image="[[item.payload.photoURL]]"
+          ></compass-feed-card>
+        </template>
+        <div style="min-height: 100px;"></div>
+      </div>
+    </div>
+    <paper-fab id="reloadFab" icon="compass:update" on-tap="refreshList"></paper-fab>
+    <paper-fab id="addFab" icon="main:add" on-tap="_enterMessage"></paper-fab>
+    <paper-material id="enterMessage" class="full layout vertical center around-justified" elevation="0" hidden$="[[hideNewMessage]]">
+      <div class="scrim full"></div>
+        <paper-card heading="Compose new Message" elevation="3">
+          <div class="card-content">
+            <paper-textarea id="messageText" label="Enter up to 350 characters" char-counter maxlength="350" auto-validate value="{{message}}"></paper-textarea>
+          </div>
+          <div class="card-actions">
+            <div class="layout horizontal end-justified">
+              <paper-button on-tap="_cancelMessage">Cancel</paper-button>
+              <paper-button on-tap="_submitMessage">Post</paper-button>
+            </div>
+          </div>
+        </paper-card>
+    </paper-material>
+    <atlas-snackbar id="snackbar">
+      <div class="layout horizontal center end-justified">
+        <span class="flex" style="text-align: left;">New Message!</span>
+        <paper-button on-tap="dismissSnackbar">Dismiss</paper-button>
+        <paper-button on-tap="refreshList">View</paper-button>
+      </div>
+    </atlas-snackbar>
+  </template>
+
+  <script>
+    class CompassFireFeed extends ReduxMixin(Polymer.mixinBehaviors(
+      [Polymer.IronResizableBehavior, Polymer.Debouncer], Polymer.Element)) {
+      static get is() { return 'compass-fire-feed'; }
+
+      static get actions() {
+        return Object.assign({},
+          window.atlasLabs.stores.compass.actions
+        );
+      }
+
+      static get properties() {
+        return {
+          hideNewMessage: {
+            type: Boolean,
+            value: true,
+            notify: true
+          },
+          message: {
+            type: String,
+            value: "#awesomeDemo "
+          },
+          ref: {
+            type: Object,
+            value: function(){return firebase.database().ref('compass/messages');}
+          },
+          currentMessages: {
+            type: Array,
+            observer: 'messagesChanged'
+          },
+          options: {
+            finite: false,
+            pageSize: 30
+          },
+
+        }
+      }
+
+      static get observers() {
+        return [
+          '_routeActionChanged(subroute)',
+        ];
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this.$.paginator.addEventListener('collection-changed', e => {
+          let collection = e.detail.value;
+          let keys = Object.keys(collection);
+          let i = keys.length;
+          let listItems = [];
+          while (i--) {
+            listItems.push({
+              key: keys[i],
+              payload: collection[keys[i]]
+            });
+          }
+          this.currentMessages = listItems;
+        });
+
+        firebase.database().ref('compass/messages').on('value', snapshot => {
+          // Slight debounce just in case a few updates pile in on one another...
+          this.debounce('firebaseUpdate', () => {
+            if (this.pleaseRefresh == true) {
+              this.refreshList();
+              this.pleaseRefresh = false;
+            }
+
+            if (this.$.snackbar && this.firstRun) {
+              this.$.snackbar.open();
+            } else {
+              this.firstRun = true;
+            }
+          }, 10)
+        });
+      }
+
+      messagesChanged(list) {
+        console.log('messagesChanged', list)
+      }
+
+      _handlePageNumberChange(e) {
+        this.isFirstPage = e.detail.value === 1;
+      };
+
+      _routeActionChanged(action) {
+        if (action && action.path && action.path.toLowerCase().startsWith('/message')) {
+          this.hideNewMessage = false;
+          if (this.hasLeft) {
+            this.$.paginator.reset();
+            this.hasLeft = false;
+          }
+        } else {
+          this.hideNewMessage = true;
+          this.message = "#awesomeDemo ";
+          this.hasLeft = true;
+        }
+      }
+
+      _enterMessage() {
+        this.debounce('_enterMessage', e => {
+          this.set('route.path', '/compass-fire/feed/message');
+        }, 150);
+      }
+
+      _cancelMessage() {
+        this.debounce('_enterMessage', e => {
+          this.set('route.path', '/compass-fire/feed');
+        }, 150);
+      }
+
+      _submitMessage() {
+        this.debounce('_submitMessage', e => {
+          if (!this.message || this.message.length < 2) {
+            console.log('ERROR');
+            this.$.messageText.errorMessage = 'Please say something so we can share it!';
+            this.$.messageText.invalid = true;
+          }
+
+          // Submit to reducer
+          this.dispatch('submitMessage', this.message);
+          this.pleaseRefresh = true;
+
+          this._cancelMessage();
+        }, 200);
+      }
+
+      dismissSnackbar() {
+        this.$.snackbar.close();
+      }
+
+      refreshList() {
+        this.$.snackbar.close();
+        this.$.paginator.reset();
+      }
+
+    }
+
+    window.customElements.define(CompassFireFeed.is, CompassFireFeed);
+  </script>
+</dom-module>

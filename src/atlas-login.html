@@ -1,0 +1,257 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/utils/debounce.html">
+<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="atlas-icons.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="components/atlas-spinner-logo.html">
+
+<dom-module id="atlas-login">
+    <template>
+        <style include="shared-styles iron-flex iron-flex-alignment">
+            :host {
+                display: block;
+                @apply(--layout-vertical);
+                height: 100vh;
+            }
+
+            #container {
+                height: 100vh;
+                padding: 24px;
+                background-color: white;
+            }
+
+            .logo-icon {
+                --iron-icon-width: 200px;
+                --iron-icon-height: 200px;
+                --iron-icon-fill-color: var(--disabled-text-color, gray);
+            }
+
+            iron-icon {
+                margin-bottom: 24px;
+            }
+
+            .message {
+                color: var(--primary-color, darkgreen);
+                font-size: 3em;
+                font-weight: 700;
+            }
+
+            .message2 {
+                color: var(--secondary-text-color, gray);
+                font-size: 1.2em;
+                font-weight: 700;
+                text-align: center;
+                margin-top: 24px;
+            }
+
+            .message3 {
+                color: var(--secondary-text-color, gray);
+                font-size: 0.75em;
+                font-weight: 400;
+                text-align: center;
+                margin-top: 16px;
+            }
+
+            #actions {
+                margin: 16px 0;
+            }
+
+            paper-button {
+                margin: 16px;
+                background-color: var(--button-secondary-color, lightgray);
+            }
+
+            .best-choice {
+                background-color: var(--primary-color, darkgreen);
+                color: white;
+            }
+
+            a {
+                color: var(--primary-color)
+            }
+        </style>
+
+        <firebase-auth id="auth" user="{{user}}" provider="google" on-error="_handleFirebaseAuthError"
+                       status-known="{{authKnown}}"></firebase-auth>
+        <app-location route="{{route}}"></app-location>
+        <div id="container" class="layout horizontal center around-justified">
+            <iron-pages
+                    selected="[[page]]"
+                    attr-for-selected="name"
+                    fallback-selection="checking"
+                    role="main">
+                <div name="login" class="layout vertical center">
+                    <span class="message">Login</span>
+                    <span class="message2">The experiences will be more rewarding if you sign into the system.</span>
+                    <span class="message3">There will be no sharing of any data outside this demo.</span>
+                    <div id="actions" class="layout vertical center">
+                        <paper-button on-tap="_signInWithGoogle" class="best-choice">Sign-in with Google</paper-button>
+                        <paper-button on-tap="_signUpWithAnon">Continue Anonymous</paper-button>
+                        <!--<paper-button on-tap="_signOut">Sign-Out</paper-button>-->
+                    </div>
+                </div>
+                <div name="checking" class="layout vertical center">
+                    <atlas-spinner-logo active="[[spinnerActive]]"></atlas-spinner-logo>
+                    <span class="message2">Logging into Firebase.</span>
+                </div>
+                <div name="redirect" class="layout vertical center">
+                    <span class="message">Redirecting</span>
+                    <span class="message2">Click <a href="[[link]]">HERE</a> if you are not redirected.</span>
+                </div>
+                <div name="blank" class="layout vertical center">
+                </div>
+            </iron-pages>
+
+
+        </div>
+    </template>
+
+    <script>
+      class AtlasLogin extends ReduxMixin(Polymer.mixinBehaviors(
+        [Polymer.IronResizableBehavior, Polymer.Debouncer],
+        Polymer.Element)) {
+        static get is() {
+          return 'atlas-login';
+        }
+
+        static get actions() {
+          return Object.assign({},
+            window.atlasLabs.stores.main.actions
+          );
+        }
+
+        static get properties() {
+          return {
+            user: {
+              type: String,
+              observer: '_userLoginChange'
+            },
+            authKnown: {
+              type: Boolean,
+              observer: '_authKnownChange'
+            },
+            page: {
+              type: String,
+              vale: 'blank',
+              reflectToAttribute: true
+            },
+            spinnerActive: {
+              type: Boolean,
+              value: true,
+            },
+            redirectAfterLogin: {
+              type: String,
+              statePath: 'main.redirectAfterLogin',
+              observer: '_redirectPathChange',
+            },
+            link: {
+              type: String,
+              value: '/selection'
+            }
+
+          }
+        }
+
+        _signOut() {
+          this.debounce('_signOut', () => {
+            this.$.auth.signOut()
+              .then(function (response) {
+//                console.log('_signOut SUCCESS: ', response)
+              })
+              .catch(function (error) {
+//                console.log('_signOut FAIL: ', error)
+              });
+          }, 200)
+        }
+
+        _signInWithGoogle(e) {
+          this.debounce('_signInWithGoogle', () => {
+            this.$.auth.signInWithRedirect()
+              .then(function (response) {
+//                console.log('_signInWithGoogle SUCCESS: ', response)
+              })
+              .catch(function (error) {
+//                console.log('_signInWithGoogle FAIL: ', error)
+              });
+          }, 150)
+        }
+
+        _signUpWithAnon(e) {
+          this.debounce('_signUpWithAnon', () => {
+            this.spinnerActive = true;
+            this.page = 'checking';
+            this.$.auth.signInAnonymously()
+              .then((response) => {
+                console.log('signInAnonymously SUCCESS: ', response);
+                this.user = response;
+                this._authKnownChange(true);
+              })
+              .catch((error) => {
+                console.error('signInAnonymously FAIL: ', error);
+                window.alert('Something bad with the lab :(');
+                this.spinnerActive = false;
+                this.page = 'login';
+              });
+          }, 150)
+        }
+
+        _handleFirebaseAuthError(error) {
+          console.error('Uh... got a firebase error! ', error.detail);
+          window.alert('Error logging in');
+        }
+
+        _redirectPathChange(path) {
+          if (!path) return;
+
+          if (this.authKnown && !this.user) {
+            this.spinnerActive = false;
+            this.page = 'login';
+          }
+
+          this.link = (path.startsWith('/') ? path : '/' + path);
+        }
+
+        _userLoginChange(user) {
+            if (!user && this.page == 'redirect') {
+              this.page = 'login';
+            }
+        }
+
+        _authKnownChange(status) {
+          console.log('_authKnownChange ', status);
+          if (!status) {
+            this.spinnerActive = true;
+            this.page = 'checking';
+            return;
+          }
+
+          console.log('_authKnownChange user: ', this.user);
+          if (this.user) {
+            window.history.replaceState({}, '', this.link);
+            this.dispatch('setRedirectAfterLogin', null); // Clear out any saved state...
+            this.dispatch('updateUserData', this.user.uid, this.user.email, this.user.displayName, this.user.photoURL);
+            this.fire('location-changed', {}, {node: window});
+            this.spinnerActive = false;
+            this.page = 'redirect';
+            window.setTimeout(() => {
+              this.spinnerActive = false;
+              this.page = 'login';
+            }, 10000);
+            return;
+          }
+
+          this.spinnerActive = false;
+          this.page = 'login';
+        }
+      }
+
+      window.customElements.define(AtlasLogin.is, AtlasLogin);
+    </script>
+</dom-module>

@@ -1,6 +1,5 @@
 {
-  "name": "polymer-starter-kit",
-  "license": "BSD-3-Clause",
+  "name": "atlas-labs",
   "devDependencies": {
     "eslint": "^3.12.0",
     "eslint-config-google": "^0.7.1",
@@ -9,5 +8,33 @@
   "scripts": {
     "lint": "eslint . --ext js,html --ignore-path .gitignore",
     "test": "npm run lint && polymer test"
+  },
+  "description": "Experimenting with Firebase and other technologies.",
+  "version": "1.0.0",
+  "main": "service-worker.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZepAviator/atlas-labs.git"
+  },
+  "keywords": [
+    "Brian",
+    "McBride",
+    "atlas",
+    "anatidae"
+  ],
+  "author": "Brian McBride",
+  "bugs": {
+    "url": "https://github.com/ZepAviator/atlas-labs/issues"
+  },
+  "homepage": "https://github.com/ZepAviator/atlas-labs#readme",
+  "dependencies": {
+    "@reactivex/rxjs": "^5.2.0",
+    "localforage": "^1.5.0",
+    "lodash": "^4.17.4",
+    "redux": "^3.6.0",
+    "redux-persist": "^4.4.2"
   }
 }

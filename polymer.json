@@ -1,11 +1,14 @@
 {
   "entrypoint": "index.html",
-  "shell": "src/my-app.html",
+  "shell": "src/atlas-app.html",
   "fragments": [
-    "src/my-view1.html",
-    "src/my-view2.html",
-    "src/my-view3.html",
-    "src/my-view404.html"
+    "src/atlas-selection.html",
+    "src/atlas-login.html",
+    "src/atlas-view404.html",
+    "src/compass-fire/compass-fire-app.html",
+    "src/compass-fire/compass-fire-blank.html",
+    "src/compass-fire/compass-fire-feed.html",
+    "src/compass-fire/compass-fire-home.html"
   ],
   "sources": [
     "src/**/*",
@@ -14,7 +17,11 @@
   ],
   "extraDependencies": [
     "manifest.json",
-    "bower_components/webcomponentsjs/*.js"
+    "bower_components/webcomponentsjs/*.js",
+    "node_modules/redux/dist/**/*",
+    "node_modules/@reactivex/rxjs/dist/global/**/*",
+    "node_modules/redux-persist/dist/redux-persist.min.js",
+    "node_modules/localforage/dist/localforage.min.js"
   ],
   "lint": {
     "rules": ["polymer-2"]

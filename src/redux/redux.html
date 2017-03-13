@@ -1,0 +1,106 @@
+<!--<script src="../../node_modules/lodash/lodash.min.js"></script>-->
+<script src="../../node_modules/redux/dist/redux.min.js"></script>
+<script src="../../node_modules/localforage/dist/localforage.min.js"></script>
+<script src="../../node_modules/redux-persist/dist/redux-persist.min.js"></script>
+<script src="../../node_modules/@reactivex/rxjs/dist/global/Rx.js"></script>
+<script src="redux-observable.min.js"></script>
+<link rel="import" href="../../bower_components/polymer-redux/polymer-redux.html">
+<!-- Firebase Components -->
+<link rel="import" href="../../bower_components/polymerfire/firebase-app-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-database-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-storage-script.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-messaging-script.html">
+<!-- Importing stores -->
+<link rel="import" href="main-store.html">
+<link rel="import" href="compass-store.html">
+
+<script>
+  (function(){
+    /*
+    Setting up the Firebase app
+     */
+    function __computeApp(name, apiKey, authDomain, databaseUrl, storageBucket, messagingSenderId) {
+      if (apiKey && authDomain && databaseUrl) {
+        var init = [{
+          apiKey: apiKey,
+          authDomain: authDomain,
+          databaseURL: databaseUrl,
+          storageBucket: storageBucket,
+          messagingSenderId: messagingSenderId
+        }];
+
+        if (name) {
+          init.push(name);
+        }
+
+        firebase.initializeApp.apply(firebase, init);
+      } else {
+        return null;
+      }
+
+      return firebase.app(name);
+    }
+
+    window.FIREBASE_ATLAS_LABS = __computeApp(
+      null,
+      window.FIREBASE_CONFIG.apiKey,
+      window.FIREBASE_CONFIG.authDomain,
+      window.FIREBASE_CONFIG.databaseURL,
+      window.FIREBASE_CONFIG.storageBucket,
+      window.FIREBASE_CONFIG.messagingSenderId
+    );
+  })()
+</script>
+
+<script>
+  (function () {
+
+    /*
+    Since I'm not using webpack yet, I'll use direct references into bundles.
+    I'm not sure if Polymer 2.0 is leveraging webpack or supports includes.
+     */
+    const localForage = window.localforage;
+    const persistStore = window['redux-persist'].persistStore;
+    const autoRehydrate = window['redux-persist'].autoRehydrate;
+    const createTransform = window['redux-persist'].createTransform;
+
+    // Main redux combine reducer.
+    const rootReducer = Redux.combineReducers({
+      main: window.atlasLabs.stores.main.reducer,
+      compass: window.atlasLabs.stores.compass.reducer
+    });
+
+    /*
+    Because I don't have imports, I'm going to flatten out multiple arrays
+    and pass them in as a single argument list.
+     */
+    const rootEpic = ReduxObservable.combineEpics.apply(
+      ReduxObservable.combineEpics,
+      [].concat.apply([], [
+        window.atlasLabs.stores.main.epics,
+        window.atlasLabs.stores.compass.epics
+      ])
+    );
+    const epicMiddleware = ReduxObservable.createEpicMiddleware(rootEpic);
+
+    // This is for the Chrome dev tools pugin for Redux, handy stuff
+    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || Redux.compose;
+
+    // Time to make the magic sandwich! Yum!
+    const store = Redux.createStore(
+      rootReducer,
+      composeEnhancers(
+        Redux.applyMiddleware(epicMiddleware),
+        autoRehydrate()
+      )
+    );
+
+    // And, let's get all this persisting to the indexDb via localForage
+    persistStore(store, {storage: localForage});
+
+    // Expose the mixin for Polymer classes
+    window.ReduxMixin = PolymerRedux(store);
+
+  })();
+</script>

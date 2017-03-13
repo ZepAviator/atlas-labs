@@ -1,0 +1,153 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<!-- App Components -->
+<link rel="import" href="../compass-fire-icons.html">
+<link rel="import" href="../compass-styles.html">
+
+<dom-module id="compass-feed-card">
+    <template>
+        <style include="compass-styles iron-flex iron-flex-alignment">
+            :host {
+                display: block;
+                /*@apply(--layout-vertical);*/
+                background-color: var(--secondary-background-color, #EEEEEE);
+            }
+
+            #mainContainer {
+
+            }
+
+            paper-card {
+                background-color: white;
+                margin: 8px;
+            }
+
+            .infoBlock {
+                padding: 8px;
+            }
+
+            .picture {
+                margin-right: 8px;
+            }
+
+            .message {
+                padding: 16px 0;
+            }
+
+            .name {
+                font-weight: bold;
+                font-size: 1.2em;
+            }
+
+            .date {
+                font-weight: normal;
+                font-size: 0.85em;
+                line-height: 2em;
+                color: var(--secondary-text-color);
+            }
+
+            .location {
+                font-weight: normal;
+                font-size: 0.85em;
+                line-height: 1.2em;
+                color: var(--secondary-text-color);
+            }
+
+            .card-actions paper-button {
+                color: var(--secondary-text-color);
+                text-transform: none;
+                font-weight: normal !important;
+            }
+
+            .card-actions paper-button iron-icon {
+                margin-right: 8px;
+                color: var(--secondary-text-color);
+            }
+
+            .comment-icon {
+                color: var(--disabled-text-color);
+            }
+
+            .user-image {
+                border-radius: 50%;
+                height: 50px;
+                width: 50px;
+                display: block;
+                margin-right: 8px;
+                background-color: var(--light-primary-color);
+            }
+
+
+
+        </style>
+
+        <paper-card>
+            <div class="card-content">
+                <div id="infoBlock" class="layout horizontal">
+                    <template is="dom-if" if="[[image]]">
+                        <img class="user-image" src="{{image}}">
+                    </template>
+                    <template is="dom-if" if="[[!image]]">
+                        <img class="user-image" src="{{defaultImage}}">
+                    </template>
+                    <div class="details layout vertical">
+                        <span class="name">[[name]]</span>
+                        <span class="date">[[date]]</span>
+                        <!--<span class="location">Location</span>-->
+                    </div>
+                </div>
+                <div class="message">[[message]]</div>
+                <div class="card-actions">
+                    <div class="layout horizontal start-justified">
+                        <paper-button>
+                           <iron-icon icon="compass:favorite-border"></iron-icon>Like
+                        </paper-button>
+                        <paper-button>
+                            <iron-icon class="comment-icon" icon="compass:comment"></iron-icon>0 Comments
+                        </paper-button>
+                    </div>
+                </div>
+            </div>
+        </paper-card>
+    </template>
+
+    <script>
+      class CompassFireBlank extends Polymer.Element {
+        static get is() { return 'compass-feed-card'; }
+
+        static get properties() {
+          return {
+            image: {
+              type: String,
+              value: ''
+            },
+            name: {
+              type: String,
+              value: 'Anonymous'
+            },
+            date: {
+              type: String,
+              value: ''
+            },
+            message: {
+              type: String,
+              value: ''
+            },
+            defaultImage: {
+              type: String,
+              computed: 'generateImage(date)'
+            }
+          }
+        }
+
+        generateImage(date) {
+          return 'https://api.adorable.io/avatars/100/'+date+'@adorable.io.png';
+        }
+
+      }
+
+      window.customElements.define(CompassFireBlank.is, CompassFireBlank);
+    </script>
+</dom-module>
